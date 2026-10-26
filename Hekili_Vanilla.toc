@@ -20,6 +20,14 @@ Events.lua
 Classes.lua
 
 Era\Classes.lua
+Era\Druid.lua
+Era\Hunter.lua
+Era\Mage.lua
+Era\Paladin.lua
+Era\Priest.lua
+Era\Rogue.lua
+Era\Shaman.lua
+Era\Warlock.lua
 Era\Warrior.lua
 
 Targets.lua

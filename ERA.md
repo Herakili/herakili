@@ -8,7 +8,7 @@ The shipped addon is the `Herakili` folder built by `tools/build.sh` (Era TOC `H
 `HerakiliDB`, commands `/herakili` and `/hera`).  The source keeps Hekili's internal Lua identifier `Hekili` and the
 untouched Wrath files, which the build leaves out.
 
-## Status: beta (`era-beta-1`)
+## Status: beta (`era-beta-2`)
 
 Every priority is auto-selected by talent tree.  Healing specs aren't covered (Hekili's engine does damage and
 tanking); healer-specced characters get the class's damage priority.
@@ -61,7 +61,7 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 |---------|---------|
 | `LIBS=<dir> tools/test.sh` | Run everything below; `quick` skips the leveling runs, `HARNESS_SAVEDVARS=<Hekili.lua>` adds a run from a saved profile. |
 | `luajit tools/harness.lua Herakili_Vanilla.toc WARRIOR 17/34/0` | Runs the addon against a model of the Era client built from its own data: only APIs that exist resolve, spells/items/strings/CVars/constants/events come from the client tables, unknown items and events error like the client. Plays login, spec detection, priority restore/selection, compiles every entry, walks the options tree, then combat scenarios through the real engine. `HARNESS_LEVEL`, `HARNESS_DEBUG=<scenario>` (Hekili's decision log), `HARNESS_TARGETDEBUG`, `HARNESS_DUMP`. |
-| `tools/build.sh [AddOns dir]` | Assemble `dist/Hekili`; optionally copy it into a WoW `Interface/AddOns` folder. |
+| `tools/build.sh [AddOns dir]` | Assemble `dist/Herakili` and `dist/Herakili-<version>.zip`; optionally copy it into a WoW `Interface/AddOns` folder. |
 | `LIBS=<dir> lua5.1 tools/packtool.lua embed Era/Warrior.lua Era/APLs/WarriorFury.simc Fury 1` | Encode an APL into the built-in pack in a class module (versioned by date and time, so profiles update). `decode` / `encode` / `decodestr` too. |
 | `python3 tools/check_apl.py Era/Warrior.lua Era/APLs/*.simc` | Every action, aura, talent and setting an APL references exists. |
 | `luajit tools/dump_spec.lua Era/Warrior.lua WARRIOR > ids.txt; python3 tools/check_ids.py ids.txt 1` | Every spell, rank, aura and talent ID exists on Era, names match, rank chains are complete. |
@@ -78,6 +78,6 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 - Enemy counting for Cleave / Whirlwind: enemy nameplates within 8 yards (enable them with V; they are off by default on
   Era), plus damage-based detection from your abilities' hits (white swings don't count).
 - Racials: Blood Fury and Berserking are used with the cooldowns when your race has them.
-- Settings (Hekili options → Warrior): Heroic Strike / Cleave rage thresholds, Execute-phase queueing, Hamstring weaving
+- Settings (Herakili options → Warrior): Heroic Strike / Cleave rage thresholds, Execute-phase queueing, Hamstring weaving
   for Windfury, Sunder / Demoralizing Shout upkeep, Rend while leveling, Bloodthirst/Mortal Strike over Execute above an
   attack-power threshold, and the Fury Overpower stance dance.

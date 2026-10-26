@@ -66,6 +66,16 @@ for i in sorted(items):
     out.append(f"[{i}]={lua_str(items[i])},")
 out.append("},")
 
+# Spell costs (GetSpellPowerCost): { powerType, cost, percent of base mana }.  Rage/energy-style costs are stored
+# ×10 for rage in the table (150 = 15 rage); mana is absolute.
+costs = {}
+if os.path.exists(os.path.join(DB, "SpellPower.csv")):
+    for r in rows("SpellPower"):
+        sid = int(r["SpellID"] or 0)
+        if sid and int(r["OrderIndex"] or 0) == 0:
+            costs[sid] = (int(r["PowerType"] or 0), int(r["ManaCost"] or 0), float(r["PowerCostPct"] or 0))
+out.append("costs = {" + ",".join(f"[{s}]={{{t},{c},{p:g}}}" for s, (t, c, p) in sorted(costs.items())) + "},")
+
 # Equip location per item (GetItemInfo's 9th return), from Item.InventoryType.
 INVTYPES = {1: "INVTYPE_HEAD", 2: "INVTYPE_NECK", 3: "INVTYPE_SHOULDER", 4: "INVTYPE_BODY", 5: "INVTYPE_CHEST",
             6: "INVTYPE_WAIST", 7: "INVTYPE_LEGS", 8: "INVTYPE_FEET", 9: "INVTYPE_WRIST", 10: "INVTYPE_HAND",

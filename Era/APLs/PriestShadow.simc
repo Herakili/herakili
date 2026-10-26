@@ -1,0 +1,54 @@
+## Shadow Priest (Classic Era 1.15); also the damage priority for Holy and Discipline priests.
+## Sources: Wowhead Classic Shadow Priest DPS rotation guide, Warcraft Tavern Classic Shadow Priest guide,
+## Classic Era priest Discord (Shadow) public guides.  No Season of Discovery runes.
+## Era mechanics: no pandemic (Shadow Word: Pain is only reapplied once it has fallen off), DoT ticks are not
+## snapshotted (Shadow Weaving stacks apply to every tick), Mind Flay ticks once per second for 3 sec.
+## Wand threshold, Inner Focus, Mind Flay clipping, Vampiric Embrace, Smite filler and AoE are in the Priest settings.
+
+actions.precombat+=/inner_fire,if=buff.inner_fire.down
+actions.precombat+=/touch_of_weakness,if=buff.touch_of_weakness.down
+actions.precombat+=/shadowguard,if=buff.shadowguard.down
+actions.precombat+=/shadowform,if=buff.shadowform.down
+## Pull with a cast: Holy Fire without Mind Flay (Holy / Discipline / below level 20), otherwise Mind Blast.
+actions.precombat+=/holy_fire,if=!talent.mind_flay.enabled
+actions.precombat+=/mind_blast
+actions.precombat+=/smite,if=settings.smite_filler
+
+actions+=/call_action_list,name=init
+actions+=/shadowform,if=buff.shadowform.down
+actions+=/silence
+actions+=/run_action_list,name=wand,if=wand_phase
+actions+=/vampiric_embrace,if=vampiric_embrace_wanted&debuff.vampiric_embrace.down&target.time_to_die>15
+actions+=/berserking,if=target.time_to_die>10
+actions+=/power_infusion,if=settings.power_infusion_self&buff.power_infusion.down&target.time_to_die>15
+actions+=/use_items
+actions+=/call_action_list,name=aoe,if=active_enemies>1
+actions+=/call_action_list,name=single
+
+## Shadow Weaving opener: Mind Blast first, so Shadow Word: Pain ticks with a stack from the start.
+actions.init+=/variable,name=mb_opener,value=talent.shadow_weaving.enabled&debuff.shadow_weaving.down&dot.shadow_word_pain.down
+actions.init+=/variable,name=dot_ttd,value=6
+
+actions.single+=/inner_focus,use_off_gcd=1,if=settings.inner_focus_mind_blast&cooldown.mind_blast.ready&(variable.mb_opener|dot.shadow_word_pain.ticking|target.time_to_die<variable.dot_ttd)
+actions.single+=/mind_blast,if=variable.mb_opener|buff.inner_focus.up
+actions.single+=/shadow_word_pain,if=!ticking&target.time_to_die>=variable.dot_ttd
+actions.single+=/devouring_plague,if=target.time_to_die>=9
+actions.single+=/mind_blast
+actions.single+=/holy_fire,if=!talent.mind_flay.enabled&!ticking&target.time_to_die>=variable.dot_ttd
+## Mind Flay: clip after a tick only for Mind Blast or a fallen-off Shadow Word: Pain (setting).
+actions.single+=/mind_flay,interrupt_if=settings.mind_blast_clip&(cooldown.mind_blast.ready|dot.shadow_word_pain.down&target.time_to_die>=variable.dot_ttd)
+actions.single+=/starshards,if=!talent.mind_flay.enabled
+actions.single+=/smite,if=settings.smite_filler
+actions.single+=/shoot
+
+## More than one enemy: Holy Nova (talent, outside Shadowform) and Shadow Word: Pain on up to 3 more targets.
+actions.aoe+=/holy_nova,if=settings.holy_nova_targets>0&active_enemies>=settings.holy_nova_targets
+actions.aoe+=/shadow_word_pain,cycle_targets=1,max_cycle_targets=3,if=settings.swp_multidot&!ticking&target.time_to_die>=12
+
+## Low mana (setting "Wand Below Mana %"): free Mind Blast with Inner Focus, keep Shadow Word: Pain up, keep the
+## group's Shadow Weaving stacks from dropping, otherwise wand.
+actions.wand+=/inner_focus,use_off_gcd=1,if=cooldown.mind_blast.ready
+actions.wand+=/mind_blast,if=buff.inner_focus.up
+actions.wand+=/shadow_word_pain,if=!ticking&target.time_to_die>=12
+actions.wand+=/mind_flay,if=group&talent.shadow_weaving.enabled&debuff.shadow_weaving.up&debuff.shadow_weaving.remains<3
+actions.wand+=/shoot

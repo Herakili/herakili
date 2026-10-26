@@ -1,0 +1,32 @@
+## Retribution Paladin (Classic Era 1.15)
+## Sources: Classic Era paladin guides (Wowhead Classic Retribution DPS rotation, Warcraft Tavern Retribution guide,
+## Classic paladin Discord "Ret 101"): keep your seal up, judge it on cooldown and reseal, Judgement of the Crusader when
+## assigned, Hammer of Wrath in execute, Exorcism on undead/demons, Consecration only for AoE (mana).
+## Seal choice, judgement debuff, mana limits, Consecration and self-Blessing are in the Paladin settings.
+
+actions.precombat+=/blessing_of_might,if=!any_blessing&(self_blessing_might|self_blessing_auto_might)
+actions.precombat+=/blessing_of_wisdom,if=!any_blessing&self_blessing_wisdom
+actions.precombat+=/blessing_of_kings,if=!any_blessing&self_blessing_kings
+actions.precombat+=/blessing_of_sanctuary,if=!any_blessing&self_blessing_sanctuary
+actions.precombat+=/seal_of_the_crusader,if=jd_crusader&buff.seal_of_the_crusader.down
+actions.precombat+=/seal_of_wisdom,if=jd_wisdom&buff.seal_of_wisdom.down
+actions.precombat+=/seal_of_light,if=jd_light&buff.seal_of_light.down
+actions.precombat+=/seal_of_command,if=use_soc&need_main_seal
+actions.precombat+=/seal_of_righteousness,if=use_sor&need_main_seal
+actions.precombat+=/seal_of_wisdom,if=use_sow&need_main_seal
+
+actions+=/hammer_of_justice
+## Judgement debuff (setting): cast its seal just before Judgement is ready, judge it, then go back to the main seal.
+actions+=/seal_of_the_crusader,if=jd_crusader&buff.seal_of_the_crusader.down&cooldown.judgement.remains<gcd.max
+actions+=/seal_of_wisdom,if=jd_wisdom&buff.seal_of_wisdom.down&cooldown.judgement.remains<gcd.max
+actions+=/seal_of_light,if=jd_light&buff.seal_of_light.down&cooldown.judgement.remains<gcd.max
+actions+=/judgement,if=debuff_seal_pending
+## Main seal: Seal of Command / Righteousness (setting), Seal of Wisdom when mana is low (setting).
+actions+=/seal_of_command,if=use_soc&need_main_seal
+actions+=/seal_of_righteousness,if=use_sor&need_main_seal
+actions+=/seal_of_wisdom,if=use_sow&need_main_seal
+actions+=/hammer_of_wrath,if=settings.hammer_of_wrath&(mana.pct>=settings.consecration_mana_pct|target.time_to_die<4)
+actions+=/judgement,if=judge_main
+actions+=/exorcism,if=settings.exorcism
+actions+=/consecration,if=settings.consecration_targets>0&active_enemies>=settings.consecration_targets&mana.pct>=settings.consecration_mana_pct
+actions+=/holy_shock,if=mana.pct>=settings.judge_mana_pct

@@ -109,6 +109,7 @@ local W = {
     time = 1000, loggedIn = false, inCombat = false,
     -- Power: powerType is the primary resource (0 mana, 1 rage, 3 energy); combo = combo points on the target.
     powerType = 0, rage = 0, mana = 4000, manaMax = 4000, energy = 100, combo = 0,
+    baseMana = 1200, -- percent-of-base-mana costs (e.g. Judgement 6%, Cat Form 55%) use this
     -- Shapeshift bar: forms = { spellID, ... } in bar order, stance = active index (0 = none).
     forms = {}, stance = 0,
     health = 4000, healthMax = 4000,
@@ -124,6 +125,10 @@ local W = {
     cooldowns = {},  -- spellID -> { start, duration }
     cvars = { nameplateShowEnemies = "1" }, -- overrides of the client defaults
     groupSize = 0,   -- GetNumGroupMembers(): 0 solo, 2-5 party, 6-40 raid
+    itemCounts = {}, -- item ID -> GetItemCount() (e.g. Soul Shards 6265); class reset() sets them
+    speed = 0,       -- player movement speed (GetUnitSpeed); > 0 means moving
+    totems = {},     -- GetTotemInfo: slot (1 fire, 2 earth, 3 water, 4 air) -> { name, remaining, duration }
+    enchants = {},   -- GetWeaponEnchantInfo: { mh = { id, remaining }, oh = { id, remaining } } (temporary enchant IDs)
 }
 
 local function UnitData( unit )
@@ -160,6 +165,8 @@ do
         end
     end
     known[ 6603 ] = true -- Auto Attack
+    -- Shoot (wands) comes with the Wands skill (not a class skill line) for priests, mages and warlocks.
+    if classID == 5 or classID == 8 or classID == 9 then known[ 5019 ] = true end
 
     -- Below the level a rank is learned, it isn't known (talents need level 10+, one point per level).
     for id in pairs( known ) do
@@ -253,6 +260,19 @@ local function SpellCooldown( x )
 end
 
 local function IsKnown( x ) local id = ResolveSpell( x ); return id ~= nil and known[ id ] == true end
+
+-- GetSpellPowerCost from the client's SpellPower table.  Percent costs are of base mana (W.baseMana).
+local POWER_NAMES = { [ 0 ] = "MANA", [ 1 ] = "RAGE", [ 2 ] = "FOCUS", [ 3 ] = "ENERGY", [ -2 ] = "HEALTH" }
+local function SpellPowerCost( x )
+    local id = ResolveSpell( x )
+    local c = id and DATA.costs and DATA.costs[ id ]
+    if not c then return id and {} or nil end
+    local ptype, amount, pct = c[ 1 ], c[ 2 ], c[ 3 ]
+    if ptype == 1 then amount = amount / 10 end -- rage is stored in tenths
+    if pct and pct > 0 then amount = math.floor( pct * ( W.baseMana or 1000 ) / 100 ) end
+    return { { type = ptype, name = POWER_NAMES[ ptype ] or "MANA", cost = amount, minCost = amount, costPercent = pct or 0,
+               costPerSec = 0, requiredAuraID = 0, hasRequiredAura = false } }
+end
 
 
 -- Items ------------------------------------------------------------------------------------------------------
@@ -519,7 +539,14 @@ local api = {
     -- Units.
     UnitClass = function( u ) if u == "player" then return className, CLASS, classID end end,
     UnitClassBase = function( u ) if u == "player" then return CLASS, classID end end,
-    UnitRace = function() return "Human", "Human", 1 end,
+    -- HARNESS_RACE=Undead|NightElf|Troll|Dwarf|Gnome|Orc|Tauren (default Human), for racial abilities.
+    UnitRace = function()
+        local races = { Human = { "Human", "Human", 1 }, Orc = { "Orc", "Orc", 2 }, Dwarf = { "Dwarf", "Dwarf", 3 },
+            NightElf = { "Night Elf", "NightElf", 4 }, Undead = { "Undead", "Scourge", 5 }, Tauren = { "Tauren", "Tauren", 6 },
+            Gnome = { "Gnome", "Gnome", 7 }, Troll = { "Troll", "Troll", 8 } }
+        local r = races[ os.getenv( "HARNESS_RACE" ) or "Human" ] or races.Human
+        return r[ 1 ], r[ 2 ], r[ 3 ]
+    end,
     UnitFactionGroup = function() return "Alliance", "Alliance" end,
     UnitSex = function() return 2 end,
     UnitLevel = function( u ) return u == "player" and LEVEL or ( UnitData( u ) and LEVEL or 0 ) end,
@@ -541,12 +568,14 @@ local api = {
     UnitHealth = function( u ) if u == "player" then return W.health end local d = UnitData( u ); return d and d.health or 0 end,
     UnitHealthMax = function( u ) if u == "player" then return W.healthMax end local d = UnitData( u ); return d and d.healthMax or 0 end,
     UnitPower = function( u, t )
+        if u == "pet" then return W.pet and W.pet.mana or 0 end
         if u ~= "player" then return 0 end
         t = t or W.powerType
         if t == 0 then return W.mana elseif t == 1 then return W.rage elseif t == 3 then return W.energy elseif t == 4 then return W.combo end
         return 0
     end,
     UnitPowerMax = function( u, t )
+        if u == "pet" then return W.pet and W.pet.manaMax or 0 end
         if u ~= "player" then return 0 end
         t = t or W.powerType
         if t == 0 then return W.manaMax elseif t == 1 or t == 3 then return 100 elseif t == 4 then return 5 end
@@ -558,7 +587,7 @@ local api = {
     end,
     UnitAffectingCombat = function( u ) return W.inCombat and ( u == "player" or UnitData( u ) ~= nil ) end,
     UnitClassification = function( u ) local d = UnitData( u ); return d and d.boss and "worldboss" or "normal" end,
-    UnitCreatureType = function( u ) return UnitData( u ) and "Humanoid" or nil end,
+    UnitCreatureType = function( u ) local d = UnitData( u ); return d and ( d.creatureType or "Humanoid" ) or nil end,
     UnitIsPlayer = function( u ) return u == "player" end,
     UnitIsTapDenied = function() return false end,
     UnitInVehicle = function() return false end, UnitHasVehicleUI = function() return false end, UnitOnTaxi = function() return false end,
@@ -585,7 +614,7 @@ local api = {
     GetCritChance = function() return 25 end, GetRangedCritChance = function() return 5 end, GetSpellCritChance = function() return 5 end,
     GetHaste = function() return 0 end, GetMeleeHaste = function() return 0 end, GetRangedHaste = function() return 0 end,
     UnitSpellHaste = function() return 0 end, GetCombatRating = function() return 0 end, GetCombatRatingBonus = function() return 0 end,
-    GetUnitSpeed = function() return 0, 7, 7, 4.7 end, GetPlayerFacing = function() return 0 end,
+    GetUnitSpeed = function( u ) return ( u == "player" and W.speed or 0 ), 7, 7, 4.7 end, GetPlayerFacing = function() return 0 end,
     GetShapeshiftForm = function() return W.stance end,
     GetNumShapeshiftForms = function() return #W.forms end,
     GetShapeshiftFormInfo = function( i ) if W.forms[ i ] then return ICON, i == W.stance, true, W.forms[ i ] end end,
@@ -608,6 +637,7 @@ local api = {
     GetSpellDescription = function( x ) return ResolveSpell( x ) and "" or nil end,
     GetSpellLink = function( x ) local id = ResolveSpell( x ); return id and ( "|cff71d5ff|Hspell:" .. id .. "|h[" .. DATA.spells[ id ][ 1 ] .. "]|h|r" ) or nil end,
     GetSpellCooldown = SpellCooldown,
+    GetSpellPowerCost = SpellPowerCost,
     GetSpellCharges = function() return nil end,
     IsPlayerSpell = function( id ) return known[ id ] == true end,
     IsSpellKnown = function( id, pet ) return not pet and known[ id ] == true end,
@@ -633,10 +663,11 @@ local api = {
     -- Items.
     GetItemInfo = GetItemInfo,
     GetItemInfoInstant = ItemInfoInstant,
-    GetItemCount = function() return 0 end, GetItemSpell = function() return nil end, GetItemIcon = function( x ) return DATA.items[ ItemID( x ) or 0 ] and 134400 or nil end,
+    GetItemCount = function( x ) return W.itemCounts[ ItemID( x ) or 0 ] or 0 end, GetItemSpell = function() return nil end, GetItemIcon = function( x ) return DATA.items[ ItemID( x ) or 0 ] and 134400 or nil end,
     GetItemCooldown = function() return 0, 0, 1 end,
     IsUsableItem = function() return false end,
     IsEquippedItem = function( x ) local id = ItemID( x ); for _, e in pairs( W.equip ) do if e == id then return true end end return false end,
+    HasWandEquipped = function() return W.equip[ 18 ] ~= nil and DATA.equipLoc ~= nil and DATA.equipLoc[ W.equip[ 18 ] ] == "INVTYPE_RANGEDRIGHT" end,
     IsEquippedItemType = function( t )
         local wanted = { Shields = "INVTYPE_SHIELD" }
         for _, e in pairs( W.equip ) do if DATA.equipLoc and DATA.equipLoc[ e ] == wanted[ t ] then return true end end
@@ -646,7 +677,16 @@ local api = {
     GetInventoryItemID = function( u, slot ) if u == "player" then return W.equip[ slot ] end end,
     GetInventoryItemLink = function( u, slot ) if u == "player" and W.equip[ slot ] then return select( 2, GetItemInfo( W.equip[ slot ] ) ) end end,
     GetInventoryItemTexture = function() return nil end, GetInventoryItemCooldown = function() return 0, 0, 0 end,
-    GetInventorySlotInfo = function() return 1 end, GetWeaponEnchantInfo = function() return nil end,
+    GetInventorySlotInfo = function() return 1 end, GetWeaponEnchantInfo = function()
+        local mh, oh = W.enchants.mh, W.enchants.oh
+        return mh ~= nil, mh and mh.remaining * 1000 or 0, 0, mh and mh.id or nil,
+            oh ~= nil, oh and oh.remaining * 1000 or 0, 0, oh and oh.id or nil
+    end,
+    GetTotemInfo = function( slot )
+        local t = W.totems[ slot ]
+        if not t then return false, "", 0, 0, 0 end
+        return true, t.name, W.time - ( t.duration - t.remaining ), t.duration, ICON
+    end,
     Item = Item,
 
     -- Action bars / bindings.
@@ -704,7 +744,7 @@ api.C_Item = Namespace( "C_Item", {
     GetItemNameByID = function( id ) return DATA.items[ id ] end,
     IsItemDataCachedByID = function() return true end,
     RequestLoadItemDataByID = function() end,
-    GetItemCount = function() return 0 end,
+    GetItemCount = function( x ) return W.itemCounts[ ItemID( x ) or 0 ] or 0 end,
     IsEquippedItem = function() return false end,
     GetItemSpell = function() return nil end,
     GetItemIconByID = function() return 134400 end,
@@ -721,6 +761,7 @@ api.C_Spell = Namespace( "C_Spell", {
     GetSpellCooldown = function( x ) local s, d = SpellCooldown( x ); return { startTime = s, duration = d, isEnabled = true, modRate = 1 } end,
     GetSpellCharges = function() return nil end,
     IsSpellUsable = function( x ) return IsKnown( x ), false end,
+    GetSpellPowerCost = SpellPowerCost,
     IsCurrentSpell = function() return false end,
     GetSpellDescription = function() return "" end,
     GetSpellLink = api.GetSpellLink,
@@ -1130,6 +1171,8 @@ local function ResetWorld()
     changedSettings = {}
     W.groupSize, W.inCombat, W.target, W.plates, W.buffs, W.debuffs = 0, false, nil, {}, {}, {}
     W.casting, W.autoRepeat, W.gcdStart, W.cooldowns, W.aggro = nil, false, nil, {}, false
+    W.speed = 0
+    W.totems, W.enchants = {}, {}
     W.cvars.nameplateShowEnemies = "1"
     W.health = W.healthMax
     if CLASSDEF.reset then CLASSDEF.reset( H ) end

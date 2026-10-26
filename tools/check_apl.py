@@ -74,7 +74,7 @@ def main():
                         errors += 1
 
             # Bare identifiers that look like custom state expressions.
-            for key in re.findall(r"\b(stance_rage_retained)\b", body):
+            for key in re.findall(r"\b(stance_rage_retained|opener_sunder_wanted)\b", body):
                 if key not in exprs:
                     print(f"{path}:{n}: unknown state expression '{key}'")
                     errors += 1

@@ -17,10 +17,14 @@ actions.init+=/variable,name=execute_phase,value=target.health.pct<20
 actions.init+=/variable,name=can_queue,value=!variable.execute_phase|settings.execute_queueing
 actions.init+=/variable,name=strike_over_execute,value=settings.execute_bt_ap>0&stat.attack_power>=settings.execute_bt_ap
 actions.init+=/variable,name=should_sunder,value=settings.debuff_sunder_enabled&target.time_to_die>((5-debuff.sunder_armor.stack)*1.5)+3
+## Opener Sunder (setting "Open With Sunder Armor"): first attack of the fight, until a Sunder has been cast.
+actions.init+=/variable,name=opener_sunder,value=opener_sunder_wanted&time<10&action.sunder_armor.time_since>time&!prev_gcd.1.sunder_armor
+actions.init+=/variable,name=opener_sunder_now,value=variable.opener_sunder&rage.current>=action.sunder_armor.cost
 actions.init+=/variable,name=slam_build,value=talent.improved_slam.rank>=5
 
 ## Battle Stance.
 actions.battle+=/charge,if=target.outside8
+actions.battle+=/sunder_armor,if=variable.opener_sunder
 actions.battle+=/battle_shout,if=buff.battle_shout.remains<3
 actions.battle+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
 actions.battle+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.hs_rage_threshold&variable.can_queue
@@ -43,6 +47,7 @@ actions.battle+=/hamstring,if=settings.hamstring_weave&rage.current>=settings.ha
 
 ## Berserker Stance.
 actions.berserker+=/intercept,if=target.outside8
+actions.berserker+=/sunder_armor,if=variable.opener_sunder
 actions.berserker+=/battle_shout,if=buff.battle_shout.remains<3
 actions.berserker+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
 actions.berserker+=/berserker_rage,if=talent.improved_berserker_rage.enabled&rage.deficit>=10&time>0

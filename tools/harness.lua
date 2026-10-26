@@ -112,6 +112,7 @@ local W = {
     cleu = nil,      -- current combat log payload
     cooldowns = {},  -- spellID -> { start, duration }
     cvars = { nameplateShowEnemies = "1" }, -- overrides of the client defaults
+    groupSize = 0,   -- GetNumGroupMembers(): 0 solo, 2-5 party, 6-40 raid
 }
 
 local function UnitData( unit )
@@ -487,7 +488,7 @@ local api = {
     IsInInstance = function() return false, "none" end, GetInstanceInfo = function() return "Elwynn Forest", "none", 0, "", 5, 0, false, 0 end,
     GetZoneText = function() return "Elwynn Forest" end, GetRealZoneText = function() return "Elwynn Forest" end, GetSubZoneText = function() return "" end,
     IsMounted = function() return false end, IsFlying = function() return false end, IsResting = function() return false end,
-    GetNumGroupMembers = function() return 0 end, IsInGroup = function() return false end, IsInRaid = function() return false end,
+    GetNumGroupMembers = function() return W.groupSize end, IsInGroup = function() return W.groupSize > 1 end, IsInRaid = function() return W.groupSize > 5 end,
     UnitInRaid = function() return nil end, UnitInParty = function() return false end,
     PlaySound = function() end, PlaySoundFile = function() end, StopSound = function() end,
     HideUIPanel = function() end, ShowUIPanel = function() end, ReloadUI = function() end,
@@ -1005,9 +1006,11 @@ local function Recs( display )
     return #out > 0 and table.concat( out, " > " ) or "(nothing)"
 end
 
-local function Tick( n )
+local function Tick( n, debugLast )
     local engine = Hekili.Engine
-    for _ = 1, n do
+    for i = 1, n do
+        -- Hekili logs one update and then turns debugging off; for HARNESS_DEBUG, log one near the end.
+        if debugLast and i == n - 10 then Hekili.ActiveDebug = true end
         W.time = W.time + 0.1
         Hekili.freshFrame = true
         for _, f in ipairs( frames ) do
@@ -1077,7 +1080,32 @@ local SCENARIOS = {
         W.inCombat, W.rage, W.target, W.plates, W.buffs = true, 60, Target(), {}, { ShoutBuff() }
         W.gcdStart = W.time + 3.9 -- the scenario ticks 4 s; this leaves ~1.4 s of GCD at the end
     end },
+    -- Raid opener (setting "Open With Sunder Armor" = In raids, the default).
+    { "Raid pull: Battle Stance, 0 rage, target 20 yd", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, false, 0, Target(), {}, { ShoutBuff() }, 1
+        W.target.distance = 20
+    end },
+    { "Raid: just charged, Battle Stance, 15 rage", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 15, Target(), {}, { ShoutBuff() }, 1
+    end },
+    { "Raid: Battle Stance, 5 rage (no rage for Sunder)", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 5, Target(), {}, { ShoutBuff() }, 1
+    end },
+    { "Raid: Berserker Stance, 30 rage, no Sunder yet", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 30, Target(), {}, { ShoutBuff() }, 3
+    end },
+    { "Raid: Berserker Stance, 30 rage, Sunder already cast", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 30, Target(), {}, { ShoutBuff() }, 3
+        W.debuffs = { { spellID = 11597, count = 1, duration = 30, expires = W.time + 29 } }
+        -- Hekili records real casts from the combat log (SPELL_CAST_SUCCESS).
+        CLEU( "SPELL_CAST_SUCCESS", GUIDS.player, W.target.guid, 11597, "Sunder Armor", 1 )
+        Fire( "UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-3-0-0-0-11597-0", 11597 )
+    end },
+    { "Party (5): Berserker Stance, 30 rage", function()
+        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.debuffs, W.stance = 5, true, 30, Target(), {}, { ShoutBuff() }, {}, 3
+    end },
     { "Battle Stance, 30 rage, target just dodged", function()
+        W.groupSize, W.debuffs = 0, {}
         W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = true, 30, Target(), {}, { ShoutBuff() }, 1
         CLEU( "SWING_MISSED", GUIDS.player, W.target.guid, "DODGE", false, 0 )
     end },
@@ -1102,7 +1130,11 @@ local DEBUG_SCENARIO = os.getenv( "HARNESS_DEBUG" )
 
 for _, sc in ipairs( SCENARIOS ) do
     local debugThis = DEBUG_SCENARIO and sc[ 1 ]:find( DEBUG_SCENARIO, 1, true )
-    Hekili.ActiveDebug = debugThis and true or nil
+    Hekili.ActiveDebug = nil
+    -- Each scenario is a separate pull: leave combat and let enough time pass that Hekili doesn't resume the last fight.
+    W.inCombat = false
+    Fire( "PLAYER_REGEN_ENABLED" )
+    W.time = W.time + 30
     local ok, err = pcall( sc[ 2 ] )
     if not ok then Report( "scenario setup", err ) end
     Fire( "PLAYER_TARGET_CHANGED" )
@@ -1111,7 +1143,7 @@ for _, sc in ipairs( SCENARIOS ) do
     Fire( "UNIT_AURA", "player" )
     Fire( "UPDATE_SHAPESHIFT_FORM" )
     if Hekili.Engine then Hekili.Engine.criticalUpdate = true end
-    Tick( 40 )
+    Tick( 40, debugThis )
     local okT, targets = pcall( Hekili.GetNumTargets, Hekili, true )
     print( string.format( "  %-50s Primary: %-55s targets: %s", sc[ 1 ], Recs( "Primary" ), okT and tostring( targets ) or ( "error " .. tostring( targets ) ) ) )
     if os.getenv( "HARNESS_TARGETDEBUG" ) and Hekili.TargetDebug then print( "    " .. Hekili.TargetDebug:gsub( "\n", "\n    " ) ) end

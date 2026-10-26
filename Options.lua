@@ -11684,7 +11684,8 @@ end
 
 
 function Hekili:Notify( str, duration )
-    if not self.DB.profile.notifications.enabled then
+    -- The notification frame is built with the displays; until then (e.g. a priority switch at login), print instead.
+    if not self.DB.profile.notifications.enabled or not HekiliNotificationText then
         self:Print( str )
         return
     end

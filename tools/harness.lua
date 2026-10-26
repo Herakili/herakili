@@ -1255,6 +1255,20 @@ end
 
 -- Report ----------------------------------------------------------------------------------------------------
 
+-- Errors Hekili catches itself (failed updates, missing spell data) land in Hekili.ErrorKeys instead of the client's
+-- error handler; in-game they show up in Hekili's own error list.  Report every one.
+do
+    local keys = Hekili.ErrorKeys or {}
+    if #keys > 0 then
+        print( "\nHekili logged " .. #keys .. " error(s) of its own:" )
+        for _, k in ipairs( keys ) do
+            local e = Hekili.ErrorDB[ k ]
+            print( "  [x" .. tostring( e and e.n or 1 ) .. "] " .. tostring( k ):gsub( "\n", " | " ):sub( 1, 300 ) )
+            Report( "hekili error", k:sub( 1, 200 ) )
+        end
+    end
+end
+
 local um = {}
 for k in pairs( unmodelled ) do um[ #um + 1 ] = k end
 table.sort( um )

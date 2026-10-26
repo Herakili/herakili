@@ -457,7 +457,8 @@ local function summon_cost( key )
 end
 
 local function cast_time( base )
-    return base * haste
+    -- Module-level helper (not run in Hekili's state environment), so state values need the state. prefix.
+    return base * state.haste
 end
 
 

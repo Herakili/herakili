@@ -3,14 +3,24 @@
 This branch adds a Classic Era (1.15.x, interface 11509) flavor of Hekili, based on the upstream `wrath` branch.
 Era, Hardcore and Anniversary realms are covered; Season of Discovery (runes) is not.
 
-## Status
+## Status: beta (`era-beta-1`)
 
-| Class   | Module            | Priorities                                                  |
-|---------|-------------------|-------------------------------------------------------------|
-| Warrior | `Era/Warrior.lua` | Fury, Arms (auto-selected by talents; Fury with no talents) |
+Every priority is auto-selected by talent tree.  Healing specs aren't covered (Hekili's engine does damage and
+tanking); healer-specced characters get the class's damage priority.
 
-Other classes still need an `Era/<Class>.lua` module and APLs; the Wrath modules in `Wrath/` are the starting point,
-and `tools/era_talents.py <classID>` prints the class's exact Era talent table.
+| Class   | Priorities | Notes |
+|---------|------------|-------|
+| Warrior | Fury, Arms, Protection | Tank Mode: Defensive Stance = tank priority (dual-wield Fury/Prot meta); raid Sunder opener |
+| Paladin | Retribution, Protection | Seal choice, Judgement debuff upkeep, Consecration by targets/mana |
+| Hunter  | Marksmanship, Beast Mastery, Survival | Auto Shot model, Aimed Shot modes, melee fallback, pet care |
+| Rogue   | Combat, Assassination, Subtlety | Energy ticks, Slice and Dice pooling, stealth openers, dagger detection |
+| Priest  | Shadow | Mind Flay clipping rules, Shadow Weaving, wand fallback, racials |
+| Shaman  | Elemental, Enhancement | Totems and weapon imbues from the client APIs |
+| Mage    | Frost, Fire, Arcane | Scorch stacks, AoE by pack position, mana gems / Evocation / wand |
+| Warlock | Affliction, Demonology, Destruction | Curse per group type, Life Tap/Dark Pact, demon handling |
+| Druid   | Feral (Cat + Bear by form), Balance | Energy ticks, optional powershifting, Maul on next swing |
+
+Porting notes for further work are in `PORTING.md`.
 
 ## What changed in the engine
 

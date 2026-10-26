@@ -2774,7 +2774,7 @@ all:RegisterAura( "gift_of_the_naaru", {
     copy = { 28800, 121093, 59545, 59547, 59543, 59544, 59548, 59542 }
 } )
 
-all:RegisterAbility( "gift_of_the_naaru", {
+if not Hekili.IsEra() then all:RegisterAbility( "gift_of_the_naaru", {
     id = 59544,
     cast = 0,
     cooldown = 180,
@@ -2783,12 +2783,12 @@ all:RegisterAbility( "gift_of_the_naaru", {
     handler = function ()
         applyBuff( "gift_of_the_naaru" )
     end,
-} )
+} ) end
 
 
 all:RegisterAbilities( {
     global_cooldown = {
-        id = 61304,
+        id = Hekili.IsEra() and 6603 or 61304, -- Era: replaced by the class module's gcd spell (Era/Classes.lua)
         cast = 0,
         cooldown = 0,
         gcd = "spell",
@@ -2796,7 +2796,7 @@ all:RegisterAbilities( {
         unlisted = true,
         known = function () return true end,
 
-        copy = 61304
+        copy = Hekili.IsEra() and 6603 or 61304
     },
 
     ancestral_call = not Hekili.IsClassic() and {
@@ -2898,7 +2898,7 @@ local bf_classes = {
 
 all:RegisterAbilities( {
     blood_fury = {
-        id = function () return bf_classes[ class.file ] or 20572 end,
+        id = function () return ( not Hekili.IsEra() and bf_classes[ class.file ] ) or 20572 end, -- Era has one Blood Fury (20572)
         cast = 0,
         cooldown = 120,
         gcd = "off",
@@ -2948,7 +2948,7 @@ all:RegisterAbilities( {
     }, ]]
 
     -- Removes all movement impairing effects and all effects which cause loss of control of your character.  This effect shares a cooldown with other similar effects.
-    will_to_survive = {
+    will_to_survive = not Hekili.IsEra() and {
         id = 59752,
         cast = 0,
         cooldown = 120,
@@ -2962,10 +2962,10 @@ all:RegisterAbilities( {
         -- TODO: Detect loss of control effects.
         handler = function ()
         end,
-    },
+    } or nil,
 
     shadowmeld = {
-        id = 58984,
+        id = Hekili.IsEra() and 20580 or 58984,
         cast = 0,
         cooldown = 120,
         gcd = "off",
@@ -3186,7 +3186,7 @@ all:RegisterAbilities( {
         end,
     },
 
-    potion_of_nightmares = {
+    potion_of_nightmares = not Hekili.IsEra() and {
         id = 53753,
         cast = 0,
         cooldown = 60,
@@ -3218,9 +3218,9 @@ all:RegisterAbilities( {
                 max_stack = 1
             }
         }
-    },
+    } or nil,
 
-    crazy_alchemists_potion = {
+    crazy_alchemists_potion = not Hekili.IsEra() and {
         id = 53750,
         cast = 0,
         cooldown = 60,
@@ -3246,7 +3246,7 @@ all:RegisterAbilities( {
             gain( 3100, "health" )
             gain( 4200, "mana" )
         end,
-    },
+    } or nil,
 
     endless_mana_potion = {
         name = function() return GetItemInfo( 43570 ) end,
@@ -3425,7 +3425,7 @@ all:RegisterAbilities( {
         end,
     },
 
-    flame_cap = {
+    flame_cap = not Hekili.IsEra() and {
         id = 28714,
         cast = 0,
         cooldown = 180,
@@ -3460,9 +3460,9 @@ all:RegisterAbilities( {
                 max_stack = 1
             }
         }
-    },
+    } or nil,
 
-    global_thermal_sapper_charge = {
+    global_thermal_sapper_charge = not Hekili.IsEra() and {
         id = 56488,
         cast = 0,
         cooldown = 300,
@@ -3492,7 +3492,7 @@ all:RegisterAbilities( {
                 if talent.incanters_absorption.enabled and buff.fire_ward.up then applyBuff( "incanters_absorption" ) end
             end
         end,
-    },
+    } or nil,
 
     healthstone = {
         name = "|cff00ccff[Healthstone]|r",

@@ -67,6 +67,8 @@ function ns.updateTalents()
     if gcdSpell and class.abilities.global_cooldown then
         class.abilities.global_cooldown.id = gcdSpell
         ns.GCDSpellID = gcdSpell
+        -- The GCD spell needn't be one of the class's abilities (e.g. Holy Light rank 1); lookups by ID must still resolve.
+        if not class.abilities[ gcdSpell ] then class.abilities[ gcdSpell ] = class.abilities.global_cooldown end
     end
 
     if not Hekili.DB.profile.specs[ spec ].usePackSelector then return end

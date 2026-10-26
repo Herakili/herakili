@@ -1,5 +1,5 @@
 ## Interface: 11509
-## Version: @project-version@
+## Version: era-beta-1
 ## Title: Hekili
 ## Author: Hekili
 ## X-Flavor: Era

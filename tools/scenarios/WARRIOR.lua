@@ -109,6 +109,48 @@ return {
                 W.inCombat, W.rage, W.target, W.buffs, W.stance = true, 30, Target(), { Shout() }, 1
                 CLEU( "SWING_MISSED", GUIDS.player, W.target.guid, "DODGE", false, 0 )
             end },
+
+            -- Tanking.  Tank Mode "auto" (default): Defensive Stance means tanking.
+            { "Tank: Defensive, 35 rage, aggro", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 35, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+            end },
+            { "Tank: Defensive, 60 rage, just parried (Revenge)", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 60, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                CLEU( "SWING_MISSED", W.target.guid, GUIDS.player, "PARRY", false, 0 )
+            end },
+            { "Tank: Defensive, 30 rage, fresh target (no Sunder/Demo)", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 30, Target(), { Shout() }, 2, true
+            end },
+            { "Tank: Defensive, 55 rage, 3 enemies", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 55, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                H.Plates( 2 )
+            end },
+            { "Tank: Defensive, 40 rage, lost aggro, taunt setting on", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 40, Target(), { Shout() }, 2, false
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                H.Setting( "tank_taunt", true )
+            end },
+            { "Tank: Defensive, 40 rage, 15% health", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 40, Target(), { Shout() }, 2, true
+                W.health = W.healthMax * 0.15
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+            end },
+            { "Tank Mode Always: pull, Battle Stance, 20 yd", function()
+                W.rage, W.target, W.buffs, W.stance = 0, Target(), { Shout() }, 1
+                W.target.distance = 20
+                H.Setting( "tank_mode", "always" )
+            end },
+            { "Tank Mode Always: charged, Battle Stance, 40 rage", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 40, Target(), { Shout() }, 1, true
+                H.Setting( "tank_mode", "always" )
+            end },
+            { "Tank Mode Never: in Defensive Stance", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance = true, 30, Target(), { Shout() }, 2
+                H.Setting( "tank_mode", "never" )
+            end },
         }
     end,
 }

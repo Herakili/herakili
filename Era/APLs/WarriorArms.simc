@@ -8,6 +8,7 @@ actions.precombat+=/battle_shout,if=buff.battle_shout.remains<30
 
 actions+=/call_action_list,name=init
 actions+=/pummel
+actions+=/run_action_list,name=tank,if=tank_priority
 actions+=/run_action_list,name=battle,if=buff.battle_stance.up
 actions+=/run_action_list,name=berserker,if=buff.berserker_stance.up
 actions+=/run_action_list,name=defensive,if=buff.defensive_stance.up
@@ -72,3 +73,27 @@ actions.berserker+=/hamstring,if=settings.hamstring_weave&rage.current>=settings
 ## Defensive Stance: get back to a damage stance.
 actions.defensive+=/battle_stance
 actions.defensive+=/berserker_stance
+
+## Tanking (Tank Mode setting, or the Protection priority).  Era tanks are mostly dual-wield Fury/Protection in
+## Defensive Stance; shield abilities are only recommended with a shield equipped.
+actions.tank+=/shield_bash
+actions.tank+=/charge,if=target.outside8
+## Pulling from Battle/Berserker Stance: Sunder first if the swap would otherwise throw rage away, then Defensive Stance.
+actions.tank+=/sunder_armor,if=!buff.defensive_stance.up&rage.current>=action.sunder_armor.cost&rage.current>stance_rage_retained
+actions.tank+=/defensive_stance,use_off_gcd=1
+actions.tank+=/taunt,if=settings.tank_taunt&time>0&!aggro
+actions.tank+=/last_stand,if=settings.tank_last_stand_pct>0&health.pct<settings.tank_last_stand_pct
+actions.tank+=/shield_wall,if=settings.tank_last_stand_pct>0&health.pct<settings.tank_last_stand_pct*0.5
+actions.tank+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
+actions.tank+=/shield_block,use_off_gcd=1,if=settings.tank_shield_block&aggro&rage.current>=25&!buff.shield_block.up
+actions.tank+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.tank_hs_rage
+actions.tank+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.tank_cleave_rage
+actions.tank+=/battle_shout,if=buff.battle_shout.remains<3
+actions.tank+=/revenge
+actions.tank+=/shield_slam
+actions.tank+=/bloodthirst
+actions.tank+=/mortal_strike
+actions.tank+=/sunder_armor,if=debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<5
+actions.tank+=/demoralizing_shout,if=settings.tank_demoshout&debuff.demoralizing_shout.remains<3
+actions.tank+=/concussion_blow
+actions.tank+=/sunder_armor

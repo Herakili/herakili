@@ -562,7 +562,9 @@ local api = {
     UnitIsPlayer = function( u ) return u == "player" end,
     UnitIsTapDenied = function() return false end,
     UnitInVehicle = function() return false end, UnitHasVehicleUI = function() return false end, UnitOnTaxi = function() return false end,
-    UnitThreatSituation = function() return nil end, UnitDetailedThreatSituation = function() return nil end,
+    -- W.aggro: the target is attacking the player (threat status 3).
+    UnitThreatSituation = function( u ) if u == "player" and W.target then return W.aggro and 3 or 0 end end,
+    UnitDetailedThreatSituation = function( u ) if u == "player" and W.target then return W.aggro, W.aggro and 3 or 0, W.aggro and 100 or 50, 100, 1000 end end,
     UnitCastingInfo = function( u )
         local c = ( u == "player" and W.casting ) or ( UnitData( u ) and UnitData( u ).casting )
         if not c or c.channel then return nil end
@@ -1112,11 +1114,22 @@ H.Pet = function( name, family )
     Fire( "UNIT_PET", "player" )
 end
 
+-- A class setting for this scenario only: H.Setting( "tank_mode", "always" ).  Restored before the next scenario.
+local changedSettings = {}
+H.Setting = function( key, value )
+    local specDB = Hekili.DB.profile.specs[ classID ]
+    if changedSettings[ key ] == nil then changedSettings[ key ] = { specDB.settings[ key ] } end
+    specDB.settings[ key ] = value
+end
+
 local SCENARIOS = CLASSDEF.scenarios( H )
 
 local function ResetWorld()
+    local specDB = Hekili.DB.profile.specs[ classID ]
+    for key, old in pairs( changedSettings ) do specDB.settings[ key ] = old[ 1 ] end
+    changedSettings = {}
     W.groupSize, W.inCombat, W.target, W.plates, W.buffs, W.debuffs = 0, false, nil, {}, {}, {}
-    W.casting, W.autoRepeat, W.gcdStart, W.cooldowns = nil, false, nil, {}
+    W.casting, W.autoRepeat, W.gcdStart, W.cooldowns, W.aggro = nil, false, nil, {}, false
     W.cvars.nameplateShowEnemies = "1"
     W.health = W.healthMax
     if CLASSDEF.reset then CLASSDEF.reset( H ) end

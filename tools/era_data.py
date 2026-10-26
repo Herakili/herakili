@@ -16,8 +16,19 @@ import sys
 API = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".era-api")
 DB = os.path.join(API, "db2")
 
-# Class skill lines (Classic Era): only Warrior so far; extend when porting more classes.
-CLASS_SKILL_LINES = {1: (26, 256, 257)}
+# Class skill lines (Classic Era), from SkillLine (CategoryID 7) by class mask.  Engraving (2851, Season of
+# Discovery runes) is left out on purpose.
+CLASS_SKILL_LINES = {
+    1: (26, 256, 257),            # Warrior: Arms, Fury, Protection
+    2: (184, 267, 594),           # Paladin: Retribution, Protection, Holy
+    3: (50, 51, 163, 261),        # Hunter: Beast Mastery, Survival, Marksmanship, Beast Training
+    4: (38, 39, 40, 253),         # Rogue: Combat, Subtlety, Poisons, Assassination
+    5: (56, 78, 613),             # Priest: Holy, Shadow Magic, Discipline
+    7: (373, 374, 375),           # Shaman: Enhancement, Restoration, Elemental Combat
+    8: (6, 8, 237),               # Mage: Frost, Fire, Arcane
+    9: (354, 355, 593),           # Warlock: Demonology, Affliction, Destruction
+    11: (134, 573, 574),          # Druid: Feral Combat, Restoration, Balance
+}
 
 
 def rows(name):
@@ -54,6 +65,21 @@ out.append("items = {")
 for i in sorted(items):
     out.append(f"[{i}]={lua_str(items[i])},")
 out.append("},")
+
+# Equip location per item (GetItemInfo's 9th return), from Item.InventoryType.
+INVTYPES = {1: "INVTYPE_HEAD", 2: "INVTYPE_NECK", 3: "INVTYPE_SHOULDER", 4: "INVTYPE_BODY", 5: "INVTYPE_CHEST",
+            6: "INVTYPE_WAIST", 7: "INVTYPE_LEGS", 8: "INVTYPE_FEET", 9: "INVTYPE_WRIST", 10: "INVTYPE_HAND",
+            11: "INVTYPE_FINGER", 12: "INVTYPE_TRINKET", 13: "INVTYPE_WEAPON", 14: "INVTYPE_SHIELD",
+            15: "INVTYPE_RANGED", 16: "INVTYPE_CLOAK", 17: "INVTYPE_2HWEAPON", 18: "INVTYPE_BAG", 19: "INVTYPE_TABARD",
+            20: "INVTYPE_ROBE", 21: "INVTYPE_WEAPONMAINHAND", 22: "INVTYPE_WEAPONOFFHAND", 23: "INVTYPE_HOLDABLE",
+            24: "INVTYPE_AMMO", 25: "INVTYPE_THROWN", 26: "INVTYPE_RANGEDRIGHT", 28: "INVTYPE_RELIC"}
+equip = {}
+if os.path.exists(os.path.join(DB, "Item.csv")):
+    for r in rows("Item"):
+        t = INVTYPES.get(int(r["InventoryType"] or 0))
+        if t and int(r["ID"]) in items:
+            equip[int(r["ID"])] = t
+out.append("equipLoc = {" + ",".join(f"[{i}]={lua_str(t)}" for i, t in sorted(equip.items())) + "},")
 
 out.append("strings = {")
 for k in sorted(strings):
@@ -142,9 +168,21 @@ for class_id, lines in CLASS_SKILL_LINES.items():
             s = older[s]
         return s
 
-    # Spells whose rank chain starts at a talent spell are only known with that talent.
-    talent_taught = {s: root(s) for s in class_spells if root(s) in talent_spells and s not in talent_spells}
-    base = sorted(s for s in set(class_spells) if root(s) not in talent_spells)
+    # Later ranks of a talent ability (Pyroblast 2-8, Bloodthirst 2-4, ...) are only known with that talent.
+    # SupercedesSpell is often 0 on Era, so match by name as well as by rank chain.
+    talent_by_name = {}
+    for tab, ranks in talents:
+        if len(ranks) == 1 and names.get(ranks[0]):
+            talent_by_name[names[ranks[0]]] = ranks[0]
+    talent_taught = {}
+    for s in set(class_spells):
+        if s in talent_spells:
+            continue
+        if root(s) in talent_spells:
+            talent_taught[s] = root(s)
+        elif names.get(s) in talent_by_name:
+            talent_taught[s] = talent_by_name[names[s]]
+    base = sorted(s for s in set(class_spells) if s not in talent_taught and s not in talent_spells)
 
     out.append(f"[{class_id}] = {{")
     out.append("base = {" + ",".join(map(str, base)) + "},")

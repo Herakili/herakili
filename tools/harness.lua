@@ -1,7 +1,8 @@
 -- Offline test harness: runs the addon against a model of the Classic Era client.
 --
 -- Usage (from the repository root, after tools/fetch-era-api.sh and python3 tools/era_data.py):
---   luajit tools/harness.lua [Hekili_Vanilla.toc] [WARRIOR] [17/34/0]
+--   luajit tools/harness.lua [Hekili_Vanilla.toc] [CLASS] [talent points, e.g. 17/34/0]
+-- Builds and combat scenarios per class live in tools/scenarios/<CLASS>.lua.
 --
 -- What is modelled faithfully, from the client's own data (tools/.era-api):
 --   * Only APIs that exist on Era resolve (native API, FrameXML, deprecation fallbacks); harness stubs for
@@ -16,7 +17,7 @@
 
 local TOC = arg[ 1 ] or "Hekili_Vanilla.toc"
 local CLASS = arg[ 2 ] or "WARRIOR"
-local BUILD = arg[ 3 ] or "17/34/0"
+local BUILD = arg[ 3 ]
 -- Character level (HARNESS_LEVEL); spells above it are unknown.  Use build 0/0/0 below level 10.
 local LEVEL = tonumber( os.getenv( "HARNESS_LEVEL" ) or "" ) or 60
 
@@ -26,21 +27,6 @@ local CLASSES = {
 }
 local className, classID = CLASSES[ CLASS ][ 1 ], CLASSES[ CLASS ][ 2 ]
 
--- Talent builds: points per tree (in-game order) and the talent rank spells learned.
-local BUILDS = {
-    WARRIOR = {
-        [ "17/34/0" ] = { -- Fury (dual wield)
-            12663, 12659, 12679, 12963, 12867, 16494,                       -- Arms: Imp. HS 2, Imp. Rend 3, TM 5, Imp. OP 2, DW 3, Impale 2
-            12838, 12856, 12861, 23588, 20503, 13048, 12328, 12974, 23881,  -- Fury: BV 5, Cruelty 5, IBS 5, DWS 5, Imp. Exec 2, Enrage 5, DW, Flurry 5, BT
-        },
-        [ "31/20/0" ] = { -- Arms (two-hander)
-            12664, 12659, 12679, 12963, 12296, 12867, 12714, 16494, 12292, 12785, 12294, -- Arms: ... Anger Mgmt, 2H Spec 5, Impale 2, SS, Axe 5, MS
-            12838, 12856, 13002, 12861,                                     -- Fury: BV 5, Cruelty 5, UW 5, IBS 5
-        },
-        [ "0/0/0" ] = {},
-    },
-}
-
 local function ReadFile( path )
     local f = io.open( path, "r" )
     if not f then return nil end
@@ -49,7 +35,24 @@ local function ReadFile( path )
     return s
 end
 
-local API_DIR = ( arg[ 0 ]:match( "^(.*)/" ) or "." ) .. "/.era-api/"
+local TOOLS_DIR = arg[ 0 ]:match( "^(.*)/" ) or "."
+local API_DIR = TOOLS_DIR .. "/.era-api/"
+
+-- Per-class definition: tools/scenarios/<CLASS>.lua returns
+--   { builds = { [ "a/b/c" ] = { talent rank spell IDs } }, defaultBuild = "a/b/c",
+--     reset = function( H ) ... end,          -- class defaults before each scenario (power type, forms, gear)
+--     scenarios = function( H ) return { { "name", function() ... end }, ... } end }
+local CLASSDEF
+do
+    local path = TOOLS_DIR .. "/scenarios/" .. CLASS .. ".lua"
+    local chunk = loadfile( path )
+    if not chunk then
+        print( "No scenario file for " .. CLASS .. " (" .. path .. ")." )
+        os.exit( 2 )
+    end
+    CLASSDEF = chunk()
+end
+BUILD = BUILD or CLASSDEF.defaultBuild or "0/0/0"
 local DATA_OK, DATA = pcall( dofile, API_DIR .. "era_data.lua" )
 if not DATA_OK then
     print( "Missing client data: run tools/fetch-era-api.sh and python3 tools/era_data.py first.\n" .. tostring( DATA ) )
@@ -104,7 +107,15 @@ mockMT.__call = function( self ) return nil end
 
 local W = {
     time = 1000, loggedIn = false, inCombat = false,
-    rage = 0, stance = ( LEVEL >= 30 ) and 3 or 1, health = 4000, healthMax = 4000,
+    -- Power: powerType is the primary resource (0 mana, 1 rage, 3 energy); combo = combo points on the target.
+    powerType = 0, rage = 0, mana = 4000, manaMax = 4000, energy = 100, combo = 0,
+    -- Shapeshift bar: forms = { spellID, ... } in bar order, stance = active index (0 = none).
+    forms = {}, stance = 0,
+    health = 4000, healthMax = 4000,
+    pet = nil,       -- { guid, name, family, health, healthMax } or nil
+    casting = nil,   -- player cast: { spellID, start, finish, channel = bool }
+    equip = {},      -- inventory slot -> item ID (16 main hand, 17 off hand, 18 ranged)
+    autoRepeat = false, -- Auto Shot / Shoot active
     target = nil,    -- { guid, name, health, healthMax, boss }
     plates = {},     -- extra hostile units in melee range: { guid, health, healthMax }
     buffs = {},      -- player buffs: { spellID, duration, expires }
@@ -117,6 +128,7 @@ local W = {
 
 local function UnitData( unit )
     if unit == "target" then return W.target end
+    if unit == "pet" then return W.pet end
     local n = type( unit ) == "string" and tonumber( unit:match( "^nameplate(%d+)$" ) )
     if n then
         if n == 1 then return W.target end
@@ -130,7 +142,11 @@ end
 local known = {}
 do
     local cls = DATA.classes[ classID ]
-    local build = ( BUILDS[ CLASS ] or {} )[ BUILD ] or {}
+    local build = ( CLASSDEF.builds or {} )[ BUILD ]
+    if not build then
+        print( "Unknown build " .. tostring( BUILD ) .. " for " .. CLASS .. "; using no talents." )
+        build = {}
+    end
     if cls then
         for _, id in ipairs( cls.base ) do known[ id ] = true end
         local talentRoots = {}
@@ -250,7 +266,8 @@ local function GetItemInfo( x )
     local id = ItemID( x )
     local name = id and DATA.items[ id ]
     if not name then return nil end
-    return name, "|cffffffff|Hitem:" .. id .. "|h[" .. name .. "]|h|r", 1, 1, 1, "Miscellaneous", "Junk", 20, "", 134400, 0, 15, 0
+    return name, "|cffffffff|Hitem:" .. id .. "|h[" .. name .. "]|h|r", 1, 1, 1, "Miscellaneous", "Junk", 20,
+        ( DATA.equipLoc and DATA.equipLoc[ id ] ) or "", 134400, 0, 15, 0
 end
 
 -- Item mixin: a port of Blizzard_ObjectAPI/Classic/Item.lua (1.15.9).  On the live client
@@ -514,16 +531,31 @@ local api = {
         local da, db = ( a == "player" ) and "p" or UnitData( a ), ( b == "player" ) and "p" or UnitData( b )
         return da ~= nil and da == db
     end,
-    UnitCanAttack = function( a, b ) return UnitData( b ) ~= nil end,
-    UnitIsFriend = function( a, b ) return b == "player" end,
-    UnitReaction = function( a, b ) return UnitData( b ) and 2 or 5 end,
+    UnitCanAttack = function( a, b ) local d = UnitData( b ); return d ~= nil and not d.friendly end,
+    UnitIsFriend = function( a, b ) local d = UnitData( b ); return b == "player" or ( d ~= nil and d.friendly == true ) end,
+    UnitReaction = function( a, b ) local d = UnitData( b ); return d and ( d.friendly and 5 or 2 ) or 5 end,
+    UnitCreatureFamily = function( u ) local d = UnitData( u ); return d and d.family end,
+    HasPetUI = function() return W.pet ~= nil, false end,
     UnitIsDead = function( u ) local d = UnitData( u ); return d and d.health <= 0 or false end,
     UnitIsDeadOrGhost = function() return false end,
     UnitHealth = function( u ) if u == "player" then return W.health end local d = UnitData( u ); return d and d.health or 0 end,
     UnitHealthMax = function( u ) if u == "player" then return W.healthMax end local d = UnitData( u ); return d and d.healthMax or 0 end,
-    UnitPower = function( u, t ) if u == "player" and ( t == nil or t == 1 ) then return W.rage end return 0 end,
-    UnitPowerMax = function( u, t ) if u == "player" and ( t == nil or t == 1 ) then return 100 end return 0 end,
-    UnitPowerType = function( u ) return 1, "RAGE" end,
+    UnitPower = function( u, t )
+        if u ~= "player" then return 0 end
+        t = t or W.powerType
+        if t == 0 then return W.mana elseif t == 1 then return W.rage elseif t == 3 then return W.energy elseif t == 4 then return W.combo end
+        return 0
+    end,
+    UnitPowerMax = function( u, t )
+        if u ~= "player" then return 0 end
+        t = t or W.powerType
+        if t == 0 then return W.manaMax elseif t == 1 or t == 3 then return 100 elseif t == 4 then return 5 end
+        return 0
+    end,
+    UnitPowerType = function( u )
+        local t = ( u == "player" or u == nil ) and W.powerType or 0
+        return t, ( { [ 0 ] = "MANA", [ 1 ] = "RAGE", [ 3 ] = "ENERGY" } )[ t ] or "MANA"
+    end,
     UnitAffectingCombat = function( u ) return W.inCombat and ( u == "player" or UnitData( u ) ~= nil ) end,
     UnitClassification = function( u ) local d = UnitData( u ); return d and d.boss and "worldboss" or "normal" end,
     UnitCreatureType = function( u ) return UnitData( u ) and "Humanoid" or nil end,
@@ -531,7 +563,19 @@ local api = {
     UnitIsTapDenied = function() return false end,
     UnitInVehicle = function() return false end, UnitHasVehicleUI = function() return false end, UnitOnTaxi = function() return false end,
     UnitThreatSituation = function() return nil end, UnitDetailedThreatSituation = function() return nil end,
-    UnitCastingInfo = function() return nil end, UnitChannelInfo = function() return nil end,
+    UnitCastingInfo = function( u )
+        local c = ( u == "player" and W.casting ) or ( UnitData( u ) and UnitData( u ).casting )
+        if not c or c.channel then return nil end
+        local name = DATA.spells[ c.spellID ] and DATA.spells[ c.spellID ][ 1 ] or "Spell"
+        return name, name, ICON, c.start * 1000, c.finish * 1000, false, "cast", c.notInterruptible or false, c.spellID
+    end,
+    UnitChannelInfo = function( u )
+        local c = ( u == "player" and W.casting ) or ( UnitData( u ) and UnitData( u ).casting )
+        if not c or not c.channel then return nil end
+        local name = DATA.spells[ c.spellID ] and DATA.spells[ c.spellID ][ 1 ] or "Spell"
+        return name, name, ICON, c.start * 1000, c.finish * 1000, false, c.notInterruptible or false, c.spellID
+    end,
+    UnitRangedDamage = function() return 2.9, 150, 250, 0, 0, 1 end,
     UnitDamage = function() return 300, 400, 150, 200, 0, 0, 1 end,
     UnitAttackSpeed = function() return 2.6, 1.8 end,
     UnitAttackPower = function() return 1500, 200, 0 end, UnitRangedAttackPower = function() return 0, 0, 0 end,
@@ -541,9 +585,10 @@ local api = {
     UnitSpellHaste = function() return 0 end, GetCombatRating = function() return 0 end, GetCombatRatingBonus = function() return 0 end,
     GetUnitSpeed = function() return 0, 7, 7, 4.7 end, GetPlayerFacing = function() return 0 end,
     GetShapeshiftForm = function() return W.stance end,
-    GetNumShapeshiftForms = function() return 3 end,
-    GetShapeshiftFormInfo = function( i ) local ids = { 2457, 71, 2458 }; return ICON, i == W.stance, true, ids[ i ] end,
-    GetComboPoints = function() return 0 end,
+    GetNumShapeshiftForms = function() return #W.forms end,
+    GetShapeshiftFormInfo = function( i ) if W.forms[ i ] then return ICON, i == W.stance, true, W.forms[ i ] end end,
+    GetShapeshiftFormID = function() return W.formID end,
+    GetComboPoints = function( u, t ) return ( t == "target" or t == nil ) and W.target and W.combo or 0 end,
     CheckInteractDistance = function( u ) return UnitData( u ) ~= nil end,
     UnitInPhase = function( u ) return u == "player" or UnitData( u ) ~= nil end,
     UnitPhaseReason = function() return nil end,
@@ -566,7 +611,8 @@ local api = {
     IsSpellKnown = function( id, pet ) return not pet and known[ id ] == true end,
     IsSpellKnownOrOverridesKnown = function( id, pet ) return not pet and known[ id ] == true end,
     IsUsableSpell = function( x ) return IsKnown( x ), false end,
-    IsCurrentSpell = function() return false end, IsAutoRepeatSpell = function() return false end,
+    IsCurrentSpell = function() return false end,
+    IsAutoRepeatSpell = function( x ) local id = ResolveSpell( x ); return W.autoRepeat and ( id == 75 or id == 5019 ) or false end,
     IsSpellInRange = function( x, u ) return UnitData( u ) and 1 or nil end,
     IsHarmfulSpell = function() return true end, IsHelpfulSpell = function() return false end,
     SpellIsTargeting = function() return false end,
@@ -587,9 +633,16 @@ local api = {
     GetItemInfoInstant = ItemInfoInstant,
     GetItemCount = function() return 0 end, GetItemSpell = function() return nil end, GetItemIcon = function( x ) return DATA.items[ ItemID( x ) or 0 ] and 134400 or nil end,
     GetItemCooldown = function() return 0, 0, 1 end,
-    IsUsableItem = function() return false end, IsEquippedItem = function() return false end, IsEquippedItemType = function() return false end,
+    IsUsableItem = function() return false end,
+    IsEquippedItem = function( x ) local id = ItemID( x ); for _, e in pairs( W.equip ) do if e == id then return true end end return false end,
+    IsEquippedItemType = function( t )
+        local wanted = { Shields = "INVTYPE_SHIELD" }
+        for _, e in pairs( W.equip ) do if DATA.equipLoc and DATA.equipLoc[ e ] == wanted[ t ] then return true end end
+        return false
+    end,
     IsItemInRange = function( x, u ) return UnitData( u ) ~= nil end,
-    GetInventoryItemID = function() return nil end, GetInventoryItemLink = function() return nil end,
+    GetInventoryItemID = function( u, slot ) if u == "player" then return W.equip[ slot ] end end,
+    GetInventoryItemLink = function( u, slot ) if u == "player" and W.equip[ slot ] then return select( 2, GetItemInfo( W.equip[ slot ] ) ) end end,
     GetInventoryItemTexture = function() return nil end, GetInventoryItemCooldown = function() return 0, 0, 0 end,
     GetInventorySlotInfo = function() return 1 end, GetWeaponEnchantInfo = function() return nil end,
     Item = Item,
@@ -820,6 +873,11 @@ do
     end
 end
 
+-- Class defaults (power type, shapeshift bar, gear) before login.
+if CLASSDEF.reset then
+    CLASSDEF.reset( { W = W, LEVEL = LEVEL, BUILD = BUILD, DATA = DATA, Aura = function( id, r ) return { spellID = id, duration = r or 0, expires = r and ( W.time + r ) or 0 } end } )
+end
+
 Step( "ADDON_LOADED", function() Fire( "ADDON_LOADED", ADDON ) end )
 Step( "PLAYER_LOGIN", function() W.loggedIn = true; Fire( "PLAYER_LOGIN" ) end )
 Step( "PLAYER_ENTERING_WORLD", function() Fire( "PLAYER_ENTERING_WORLD", true, false ) end )
@@ -991,8 +1049,6 @@ local function Target( health, boss )
     return { guid = "Creature-0-1-1-1-1234-0000000001", name = "Training Target", health = health or 100000, healthMax = 100000, boss = boss }
 end
 
-local function ShoutBuff() return { spellID = 25289, duration = 120, expires = W.time + 100 } end
-
 local function Recs( display )
     local d = Hekili.DisplayPool and Hekili.DisplayPool[ display ]
     if not d or not d.Recommendations then return "(no display)" end
@@ -1030,86 +1086,41 @@ local function CLEU( subtype, sourceGUID, destGUID, ... )
     W.cleu = nil
 end
 
-local SCENARIOS = {
-    { "Out of combat, target in range, no Battle Shout", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs = false, 20, Target(), {}, {}
-    end },
-    { "Combat, 60 rage, single target", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs = true, 60, Target(), {}, { ShoutBuff() }
-    end },
-    { "Combat, 10 rage, single target", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs = true, 10, Target(), {}, { ShoutBuff() }
-    end },
-    { "Combat, 60 rage, target at 15% (execute)", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs = true, 60, Target( 15000 ), {}, { ShoutBuff() }
-    end },
-    { "Combat, 60 rage, 3 enemies in melee", function()
-        W.inCombat, W.rage, W.target, W.buffs = true, 60, Target(), { ShoutBuff() }
-        W.plates = { { guid = "Creature-0-1-1-1-1234-0000000002", health = 100000, healthMax = 100000 },
-                     { guid = "Creature-0-1-1-1-1234-0000000003", health = 100000, healthMax = 100000 } }
-        for i = 1, 3 do Fire( "NAME_PLATE_UNIT_ADDED", "nameplate" .. i ) end
-    end },
-    { "Combat, 60 rage, 3 enemies hit, nameplates OFF", function()
-        W.inCombat, W.rage, W.target, W.buffs, W.plates = true, 60, Target(), { ShoutBuff() }, {}
-        W.cvars.nameplateShowEnemies = "0"
-        -- Damage-based detection: we have recently hit three different mobs (hostile NPC flags 0xa48).
-        if os.getenv( "HARNESS_TARGETDEBUG" ) then
-            local sp = rawget( Hekili.DB.profile.specs, 1 )
-            print( "    profile spec 1: damage=" .. tostring( sp and sp.damage ) .. " nameplates=" .. tostring( sp and sp.nameplates ) .. " damageRange=" .. tostring( sp and sp.damageRange ) )
-            local orig = ns.updateTarget
-            ns.updateTarget = function( id, t, mine ) print( "    updateTarget " .. tostring( id ) .. " mine=" .. tostring( mine ) ); return orig( id, t, mine ) end
-        end
-        -- Only ability damage counts (white swings go through Hekili's swing-timer branch instead), so: a Cleave/Whirlwind.
-        for i = 1, 3 do
-            W.cleu = { n = 23, W.time, "SPELL_DAMAGE", false, GUIDS.player, "Tester", 0x511, 0,
-                "Creature-0-1-1-1-1234-000000000" .. i, "Mob", 0xa48, 0, 1680, "Whirlwind", 1, 600, -1, 1, 0, 0, 0, false, false }
-            Fire( "COMBAT_LOG_EVENT_UNFILTERED" )
-            W.cleu = nil
-        end
-    end },
-    { "Out of combat, Battle Stance, target 20 yd away", function()
-        W.cvars.nameplateShowEnemies = "1"
-        W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = false, 0, Target(), {}, { ShoutBuff() }, 1
-        W.target.distance = 20
-    end },
-    { "Combat, Berserker Stance, 20 rage, target 15 yd away", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = true, 20, Target(), {}, { ShoutBuff() }, 3
-        W.target.distance = 15
-    end },
-    { "Combat, 60 rage, GCD just triggered", function()
-        W.inCombat, W.rage, W.target, W.plates, W.buffs = true, 60, Target(), {}, { ShoutBuff() }
-        W.gcdStart = W.time + 3.9 -- the scenario ticks 4 s; this leaves ~1.4 s of GCD at the end
-    end },
-    -- Raid opener (setting "Open With Sunder Armor" = In raids, the default).
-    { "Raid pull: Battle Stance, 0 rage, target 20 yd", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, false, 0, Target(), {}, { ShoutBuff() }, 1
-        W.target.distance = 20
-    end },
-    { "Raid: just charged, Battle Stance, 15 rage", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 15, Target(), {}, { ShoutBuff() }, 1
-    end },
-    { "Raid: Battle Stance, 5 rage (no rage for Sunder)", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 5, Target(), {}, { ShoutBuff() }, 1
-    end },
-    { "Raid: Berserker Stance, 30 rage, no Sunder yet", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 30, Target(), {}, { ShoutBuff() }, 3
-    end },
-    { "Raid: Berserker Stance, 30 rage, Sunder already cast", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = 25, true, 30, Target(), {}, { ShoutBuff() }, 3
-        W.debuffs = { { spellID = 11597, count = 1, duration = 30, expires = W.time + 29 } }
-        -- Hekili records real casts from the combat log (SPELL_CAST_SUCCESS).
-        CLEU( "SPELL_CAST_SUCCESS", GUIDS.player, W.target.guid, 11597, "Sunder Armor", 1 )
-        Fire( "UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-3-0-0-0-11597-0", 11597 )
-    end },
-    { "Party (5): Berserker Stance, 30 rage", function()
-        W.groupSize, W.inCombat, W.rage, W.target, W.plates, W.buffs, W.debuffs, W.stance = 5, true, 30, Target(), {}, { ShoutBuff() }, {}, 3
-    end },
-    { "Battle Stance, 30 rage, target just dodged", function()
-        W.groupSize, W.debuffs = 0, {}
-        W.inCombat, W.rage, W.target, W.plates, W.buffs, W.stance = true, 30, Target(), {}, { ShoutBuff() }, 1
-        CLEU( "SWING_MISSED", GUIDS.player, W.target.guid, "DODGE", false, 0 )
-    end },
+-- Helpers for the class scenario files.
+local H = {
+    W = W, Fire = Fire, CLEU = CLEU, GUIDS = GUIDS, LEVEL = LEVEL, BUILD = BUILD, DATA = DATA, Hekili = Hekili, ns = ns,
+    Target = Target,
+    -- A player buff / target debuff entry: H.Aura( spellID, remaining, stacks, duration ).
+    Aura = function( spellID, remaining, stacks, duration )
+        return { spellID = spellID, count = stacks or 0, duration = duration or remaining or 0, expires = remaining and ( W.time + remaining ) or 0 }
+    end,
+    -- n extra hostile units in melee range (nameplates 2..n+1).
+    Plates = function( n )
+        W.plates = {}
+        for i = 1, n do W.plates[ i ] = { guid = "Creature-0-1-1-1-1234-00000000" .. ( 10 + i ), health = 100000, healthMax = 100000 } end
+        for i = 1, n + 1 do Fire( "NAME_PLATE_UNIT_ADDED", "nameplate" .. i ) end
+    end,
+    -- A real cast by the player, as the client reports it (combat log + unit event).
+    Cast = function( spellID, destGUID )
+        CLEU( "SPELL_CAST_SUCCESS", GUIDS.player, destGUID or ( W.target and W.target.guid ) or "", spellID,
+            DATA.spells[ spellID ] and DATA.spells[ spellID ][ 1 ] or "Spell", 1 )
+        Fire( "UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-3-0-0-0-" .. spellID .. "-0", spellID )
+    end,
 }
+H.Pet = function( name, family )
+    W.pet = { guid = "Pet-0-1-1-1-1-0000000099", name = name or "Pet", family = family, health = 2000, healthMax = 2000, friendly = true }
+    Fire( "UNIT_PET", "player" )
+end
+
+local SCENARIOS = CLASSDEF.scenarios( H )
+
+local function ResetWorld()
+    W.groupSize, W.inCombat, W.target, W.plates, W.buffs, W.debuffs = 0, false, nil, {}, {}, {}
+    W.casting, W.autoRepeat, W.gcdStart, W.cooldowns = nil, false, nil, {}
+    W.cvars.nameplateShowEnemies = "1"
+    W.health = W.healthMax
+    if CLASSDEF.reset then CLASSDEF.reset( H ) end
+end
 
 -- LibRangeCheck derives distance from per-item/spell ranges we don't model; answer from the world model instead.
 do
@@ -1135,11 +1146,14 @@ for _, sc in ipairs( SCENARIOS ) do
     W.inCombat = false
     Fire( "PLAYER_REGEN_ENABLED" )
     W.time = W.time + 30
+    ResetWorld()
     local ok, err = pcall( sc[ 2 ] )
     if not ok then Report( "scenario setup", err ) end
     Fire( "PLAYER_TARGET_CHANGED" )
     Fire( W.inCombat and "PLAYER_REGEN_DISABLED" or "PLAYER_REGEN_ENABLED" )
-    Fire( "UNIT_POWER_UPDATE", "player", "RAGE" )
+    Fire( "UNIT_POWER_UPDATE", "player", ( { [ 0 ] = "MANA", [ 1 ] = "RAGE", [ 3 ] = "ENERGY" } )[ W.powerType ] or "MANA" )
+    Fire( "UNIT_POWER_FREQUENT", "player", "COMBO_POINTS" )
+    Fire( "PLAYER_EQUIPMENT_CHANGED", 16 )
     Fire( "UNIT_AURA", "player" )
     Fire( "UPDATE_SHAPESHIFT_FORM" )
     if Hekili.Engine then Hekili.Engine.criticalUpdate = true end
@@ -1158,7 +1172,6 @@ for _, sc in ipairs( SCENARIOS ) do
         end
         Hekili.ActiveDebug = nil
     end
-    W.stance = ( LEVEL >= 30 ) and 3 or 1
 end
 
 -- Report ----------------------------------------------------------------------------------------------------

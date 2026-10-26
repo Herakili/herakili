@@ -16,7 +16,7 @@ done
 # Client database tables (DB2) as CSV from wago.tools, for ID audits and GlobalStrings.
 BUILD="${ERA_BUILD:-$(curl -fsSL https://wago.tools/api/builds | python3 -I -c 'import sys, json; print(json.load(sys.stdin)["wow_classic_era"][0]["version"])')}"
 mkdir -p "$DIR/db2"
-for t in GlobalStrings SpellName Spell SpellLevels SkillLineAbility Talent ItemSparse; do
+for t in GlobalStrings SpellName Spell SpellLevels SkillLine SkillLineAbility Talent ItemSparse Item; do
     curl -fsSL -o "$DIR/db2/$t.csv" "https://wago.tools/db2/$t/csv?build=$BUILD"
     echo "Fetched db2/$t.csv for $BUILD ($(wc -l < "$DIR/db2/$t.csv") rows)"
 done

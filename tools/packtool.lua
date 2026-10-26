@@ -180,7 +180,7 @@ local cmd = arg[ 1 ]
 if cmd == "decode" then
     local src = ReadFile( arg[ 2 ] )
     local name = arg[ 3 ]
-    local pack = src:match( 'RegisterPack%(%s*"' .. name .. '"%s*,%s*%d+%s*,%s*%[%[(.-)%]%]' )
+    local pack = src:match( 'RegisterPack%(%s*"' .. name .. '"%s*,%s*[%d%.]+%s*,%s*%[%[(.-)%]%]' )
     assert( pack, "Pack not found: " .. name )
     print( Dump( StringToTable( pack ) ) )
 
@@ -198,7 +198,8 @@ elseif cmd == "encode" or cmd == "embed" then
 
     local profile = ReadFile( simc )
     local lists = ParseSimC( profile )
-    local now = os.date( "%Y%m%d" )
+    -- Date and time, so a rebuild on the same day still counts as newer (Hekili only updates built-in packs when the version increases).
+    local now = os.date( "%Y%m%d.%H%M" )
     local serial = {
         type = "package",
         name = name,
@@ -225,7 +226,7 @@ elseif cmd == "encode" or cmd == "embed" then
         local path = arg[ 2 ]
         local src = ReadFile( path )
         local line = format( 'spec:RegisterPack( "%s", %s, [[%s]] )', name, now, encoded )
-        local pattern = 'spec:RegisterPack%(%s*"' .. name:gsub( "%p", "%%%0" ) .. '"%s*,%s*%d+%s*,%s*%[%[.-%]%]%s*%)'
+        local pattern = 'spec:RegisterPack%(%s*"' .. name:gsub( "%p", "%%%0" ) .. '"%s*,%s*[%d%.]+%s*,%s*%[%[.-%]%]%s*%)'
         local s, e = src:find( pattern )
 
         if s then

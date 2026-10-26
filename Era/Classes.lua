@@ -60,6 +60,15 @@ function ns.updateTalents()
     end
 
     local spec = state.spec.id or select( 3, UnitClass( "player" ) )
+
+    -- Classic Era has no "global cooldown" spell (61304); track the GCD through the class's
+    -- cooldown-free spell named by its module (spec:RegisterOptions{ gcd = ... }).
+    local gcdSpell = class.specs[ spec ] and class.specs[ spec ].options and class.specs[ spec ].options.gcd
+    if gcdSpell and class.abilities.global_cooldown then
+        class.abilities.global_cooldown.id = gcdSpell
+        ns.GCDSpellID = gcdSpell
+    end
+
     if not Hekili.DB.profile.specs[ spec ].usePackSelector then return end
 
     -- Swap priorities if needed.

@@ -509,6 +509,16 @@ function ns.FindRaidBuffLowestRemainsByID(id)
     return buffRemainsReturn == nil and 0 or buffRemainsReturn
 end
 
+-- Registering an event the client doesn't have is an error (e.g. LEARNED_SPELL_IN_TAB on Classic Era).
+do
+    local IsEventValid = C_EventUtils and C_EventUtils.IsEventValid
+
+    function ns.IsEventValid( event )
+        if not IsEventValid then return true end
+        return IsEventValid( event )
+    end
+end
+
 -- Classic Era (1.15.8+) has no GetPlayerAuraBySpellID global; build it from C_UnitAuras there.
 do
     local GetPlayerAuraBySpellID = _G.GetPlayerAuraBySpellID

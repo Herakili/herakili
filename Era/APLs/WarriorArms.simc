@@ -27,6 +27,8 @@ actions.battle+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=s
 actions.battle+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.cleave_rage_threshold&variable.can_queue
 actions.battle+=/sweeping_strikes,if=active_enemies>1
 actions.battle+=/death_wish,if=target.time_to_die>20|variable.execute_phase
+actions.battle+=/blood_fury,if=target.time_to_die>15|variable.execute_phase
+actions.battle+=/berserking,if=target.time_to_die>10|variable.execute_phase
 actions.battle+=/use_items
 actions.battle+=/sunder_armor,if=variable.should_sunder&(debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<3)
 actions.battle+=/execute,if=!variable.strike_over_execute
@@ -47,6 +49,8 @@ actions.berserker+=/berserker_rage,if=talent.improved_berserker_rage.enabled&rag
 actions.berserker+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.hs_rage_threshold&variable.can_queue
 actions.berserker+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.cleave_rage_threshold&variable.can_queue
 actions.berserker+=/death_wish,if=target.time_to_die>20|variable.execute_phase
+actions.berserker+=/blood_fury,if=target.time_to_die>15|variable.execute_phase
+actions.berserker+=/berserking,if=target.time_to_die>10|variable.execute_phase
 actions.berserker+=/recklessness,if=variable.execute_phase|target.time_to_die<16
 actions.berserker+=/use_items
 actions.berserker+=/sunder_armor,if=variable.should_sunder&(debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<3)

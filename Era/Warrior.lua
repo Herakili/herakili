@@ -117,59 +117,65 @@ spec:RegisterResource( Enum.PowerType.Rage, {
 } )
 
 
--- Talents: { talentID, maxRank, rank1SpellID, ... rankNSpellID }
+-- Talents: { talentID, maxRank, rank1SpellID, ... rankNSpellID }, from the Classic Era client's Talent table.
 spec:RegisterTalents( {
     -- Arms
-    improved_heroic_strike          = {   124, 3, 12282, 12663, 12664 },
-    deflection                      = {   130, 5, 16462, 16463, 16464, 16465, 16466 },
-    improved_rend                   = {   127, 3, 12286, 12658, 12659 },
-    improved_charge                 = {   126, 2, 12285, 12697 },
-    tactical_mastery                = {   128, 5, 12295, 12676, 12677, 12678, 12679 },
-    improved_thunder_clap           = {   141, 3, 12287, 12665, 12666 },
-    improved_overpower              = {   131, 2, 12290, 12963 },
-    anger_management                = {   137, 1, 12296 },
-    deep_wounds                     = {   121, 3, 12834, 12849, 12867 },
-    two_handed_weapon_specialization = {  136, 5, 12163, 12711, 12712, 12713, 12714 },
-    impale                          = {   662, 2, 16493, 16494 },
-    axe_specialization              = {   132, 5, 12700, 12781, 12783, 12784, 12785 },
-    sweeping_strikes                = {   133, 1, 12292 },
-    mace_specialization             = {   125, 5, 12284, 12701, 12702, 12703, 12704 },
-    sword_specialization            = {   123, 5, 12281, 12812, 12813, 12814, 12815 },
-    polearm_specialization          = {   134, 5, 12165, 12830, 12831, 12832, 12833 },
-    improved_hamstring              = {   129, 3, 12289, 12668, 23695 },
-    mortal_strike                   = {   135, 1, 12294 },
+    improved_heroic_strike           = {   124, 3, 12282, 12663, 12664 },
+    deflection                       = {   130, 5, 16462, 16463, 16464, 16465, 16466 },
+    improved_rend                    = {   127, 3, 12286, 12658, 12659 },
+    improved_charge                  = {   126, 2, 12285, 12697 },
+    tactical_mastery                 = {   641, 5, 12295, 12676, 12677, 12678, 12679 },
+    improved_thunder_clap            = {   128, 3, 12287, 12665, 12666 },
+    improved_overpower               = {   131, 2, 12290, 12963 },
+    anger_management                 = {   137, 1, 12296 },
+    deep_wounds                      = {   121, 3, 12834, 12849, 12867 },
+    two_handed_weapon_specialization = {   136, 5, 12163, 12711, 12712, 12713, 12714 },
+    impale                           = {   662, 2, 16493, 16494 },
+    axe_specialization               = {   132, 5, 12700, 12781, 12783, 12784, 12785 },
+    sweeping_strikes                 = {   133, 1, 12292 },
+    mace_specialization              = {   125, 5, 12284, 12701, 12702, 12703, 12704 },
+    sword_specialization             = {   123, 5, 12281, 12812, 12813, 12814, 12815 },
+    polearm_specialization           = {   134, 5, 12165, 12830, 12831, 12832, 12833 },
+    improved_hamstring               = {   129, 3, 12289, 12668, 23695 },
+    mortal_strike                    = {   135, 1, 12294 },
 
     -- Fury
-    booming_voice                   = {   158, 5, 12321, 12835, 12836, 12837, 12838 },
-    cruelty                         = {   157, 5, 12320, 12852, 12853, 12855, 12856 },
-    improved_demoralizing_shout     = {   161, 5, 12324, 12876, 12877, 12878, 12879 },
-    unbridled_wrath                 = {   159, 5, 12322, 12999, 13000, 13001, 13002 },
-    improved_cleave                 = {   166, 3, 12329, 12950, 20496 },
-    piercing_howl                   = {   160, 1, 12323 },
-    blood_craze                     = {   661, 3, 16487, 16489, 16492 },
-    improved_battle_shout           = {   154, 5, 12318, 12857, 12858, 12860, 12861 },
-    dual_wield_specialization       = {  1581, 5, 23584, 23585, 23586, 23587, 23588 },
-    improved_execute                = {  1542, 2, 20502, 20503 },
-    enrage                          = {   155, 5, 12317, 13045, 13046, 13047, 13048 },
-    improved_slam                   = {  2233, 5, 12862, 12330, 20497, 20498, 20499 },
-    death_wish                      = {   165, 1, 12328 },
-    improved_intercept              = {  1543, 2, 20504, 20505 },
-    improved_berserker_rage         = {  1541, 2, 20500, 20501 },
-    flurry                          = {   156, 5, 12319, 12971, 12972, 12973, 12974 },
-    bloodthirst                     = {   167, 1, 23881 },
+    booming_voice                    = {   158, 5, 12321, 12835, 12836, 12837, 12838 },
+    cruelty                          = {   157, 5, 12320, 12852, 12853, 12855, 12856 },
+    improved_demoralizing_shout      = {   161, 5, 12324, 12876, 12877, 12878, 12879 },
+    unbridled_wrath                  = {   159, 5, 12322, 12999, 13000, 13001, 13002 },
+    improved_cleave                  = {   166, 3, 12329, 12950, 20496 },
+    piercing_howl                    = {   160, 1, 12323 },
+    blood_craze                      = {   661, 3, 16487, 16489, 16492 },
+    improved_battle_shout            = {   154, 5, 12318, 12857, 12858, 12860, 12861 },
+    dual_wield_specialization        = {  1581, 5, 23584, 23585, 23586, 23587, 23588 },
+    improved_execute                 = {  1542, 2, 20502, 20503 },
+    enrage                           = {   155, 5, 12317, 13045, 13046, 13047, 13048 },
+    improved_slam                    = {   168, 5, 12862, 12330, 20497, 20498, 20499 },
+    death_wish                       = {   165, 1, 12328 },
+    improved_intercept               = {  1543, 2, 20504, 20505 },
+    improved_berserker_rage          = {  1541, 2, 20500, 20501 },
+    flurry                           = {   156, 5, 12319, 12971, 12972, 12973, 12974 },
+    bloodthirst                      = {   167, 1, 23881 },
 
     -- Protection
-    shield_specialization           = {  1601, 5, 12298, 12724, 12725, 12726, 12727 },
-    anticipation                    = {   138, 5, 12297, 12750, 12751, 12752, 12753 },
-    toughness                       = {   140, 5, 12299, 12761, 12762, 12763, 12764 },
-    improved_shield_block           = {   151, 3, 12945 },
-    improved_revenge                = {   147, 3, 12797, 12799, 12800 },
-    last_stand                      = {   153, 1, 12975 },
-    improved_shield_bash            = {   149, 2, 12958 },
-    improved_sunder_armor           = {   146, 3, 12308, 12810, 12811 },
-    concussion_blow                 = {   152, 1, 12809 },
-    one_handed_weapon_specialization = {  702, 5, 16538, 16539, 16540, 16541, 16542 },
-    shield_slam                     = {  1666, 1, 23922 },
+    shield_specialization            = {  1601, 5, 12298, 12724, 12725, 12726, 12727 },
+    anticipation                     = {   138, 5, 12297, 12750, 12751, 12752, 12753 },
+    improved_bloodrage               = {   142, 2, 12301, 12818 },
+    toughness                        = {   140, 5, 12299, 12761, 12762, 12763, 12764 },
+    iron_will                        = {   141, 5, 12300, 12959, 12960, 12961, 12962 },
+    last_stand                       = {   153, 1, 12975 },
+    improved_shield_block            = {   145, 3, 12945, 12307, 12944 },
+    improved_revenge                 = {   147, 3, 12797, 12799, 12800 },
+    defiance                         = {   144, 5, 12303, 12788, 12789, 12791, 12792 },
+    improved_sunder_armor            = {   146, 3, 12308, 12810, 12811 },
+    improved_disarm                  = {   151, 3, 12313, 12804, 12807 },
+    improved_taunt                   = {   143, 2, 12302, 12765 },
+    improved_shield_wall             = {   150, 2, 12312, 12803 },
+    concussion_blow                  = {   152, 1, 12809 },
+    improved_shield_bash             = {   149, 2, 12311, 12958 },
+    one_handed_weapon_specialization = {   702, 5, 16538, 16539, 16540, 16541, 16542 },
+    shield_slam                      = {   148, 1, 23922 },
 } )
 
 
@@ -697,7 +703,7 @@ spec:RegisterAbilities( {
         buff = "battle_stance",
 
         usable = function()
-            return not combat and target.minR > 7, "cannot be in combat; target must be outside 8 yards"
+            return combat == 0 and target.minR > 7, "cannot be in combat; target must be outside 8 yards"
         end,
 
         handler = function()
@@ -1524,9 +1530,9 @@ spec:RegisterOptions( {
 } )
 
 
-spec:RegisterPack( "Arms", 20261026, [[Hekili:LRvBpUnUr4FlbhGH9LnAT9wNMKABGMEfPnaxAr1b0VjjAjURiw9Ilj16BpSq)2VHKsuusKYEZ9YEafizTSeNzE4WzMNH0kyvWpe4NG44GVSE563Uc(FGp)XJ4a)JO47r3bxuGYH)(xP5mXnFmReLiKIvwrJHhKY5hzF46RVJWtRo4fxMF9)aFpjJCDQ6Ja)dvKm()Si4WyBXoIJd(Yk4bywSYk1r)xeLskP1rhfFq4pwhDR4R)TmeJrIRJ(7ueGfA5TKmabFZ3uhnqW5MdToAL3QnlQ)SyG(syZ(qFTPf1NKds)PQhpqRyPFIWVU7blQJsW3IQY4SRKcetr3YRJ(b0dyAHHc)U)TFD0PwSCxfjb7PS(hrCEggqbhvedFsaqZtHlslZH)YAU98VVKYrzIXrj3JbR9VatCS8eMcx7NHYfFCcJpskURDuSf)fqHao(iMYW07X0o7iSHeaDEuusIWJLsOzNifjWne)5)GJVpdZyfW)BUvmc0zIsphGGIMfdnIGPw9NrXCszbZ7ifdrahq8xV76dYjBOAsDf52DhQU9wp1x9skpvmTyPLvCTuM30JIZrKc22BwAyAqYyuwwO6RHzeg)krO7osbHBoQJv554mZ7qRkglMYIJaGc9vhpV8TRcDQO9opdTabC4cg5HoGOVJDTy3hOqV5cLWRad)beLGoaZt5WW)ioUIJdpMIy4REaLvH3Xr07WCVumkJN6DmMVD9YZOgiIj8)vHRAvXRAFSxpd8edZ5qamtFBPqIq6P1ptgVhwcrGHnI2yPrA8apeDC)YzGVI7bobi(nug1U3XypNPHaWSKqwvrcSYoWOjyXkuZddXfcXsM14a5KCCiVmmHG3pF(M3OgSxZGr08sQi3i((fF7kVnlE9nNdjqvGqrL1e9cvgUG7rYHcJpGbmcdWJIkUF)UnIv(X1F86mHkare)KkGRiARb3qchdkG9olJ9zKPAt6SYYekqXCvfdwmbh3DXj7wjuK4UIaDsmHVF36LZeoV9lTOKumTKehQIigRiX4HmfCboNGz7wntQ54kkfCvgHaPSqXtc5PumG8SKz6qwDWSnNvggQ9FoZU3PzvY)vzAwt1)MPoZMzTiwcgXtdpryPglXMHMRx(K9SvlktmVjCmW8AbFgX1ctPvAVmOzZDMgSDZt2EMoIAHfJ2wmaSxxnhlvlSiAUKXTXBA55LT0DUnRLNaTejXECg6OLvO1ZAMIMJtpfxBD9dakkJ8tYL(2eV5dlbjgM8PTvHEAOLx0A6XACYSwicorysTff3qxRRVv2EtRredss5BRA47Tf(i6XPxyJUC3SxLx(ay6zXLq2cOtVERDTO3A4FkkxmQI76nf03n8KiF0zrc9W6NWQlUoSVlZ6RTpdabPGJHEqpYNUkRHeFDfAnvWVKATM6r3cJuzs83N1P)i8Adm6BLvtBLxMI6ga4fOUUH1)vPgTH(Og903lNQF3yJn02vV1UgTv434X)Uw73WUFfL)nK(u7wHSvO2UiUinCPvhncpB(zkLTB9t9J02SzAxW0LruBiBu0T0HR55cPyuYJWUl6fKVDNsAvSnfZb8bP3A8RfxVyT0BZzRuBoeTdZ8XoIZ(vGKysd7k)0gh8zPGFMeUM1d)TG16SEMlyrrX79DT7iTL37d1rqLK2tlGxwhHeNGqoy)2Z4WGAuVH2HrOogYGDrx)5aFiOJbd08GLoHOfI5FGFGVyFWmXzwPupC1xKh8vZctWhd8vwkWxT9h4tkuFdIQc8hqqhWbR4qytgztv4KUUoABD0ncvEZav2jSjZzD0(D1rW(VJMb(vI4iJ2xhT0abT88b(gP3IPlyJ)KtB0VAxDeyKvsBygtPmUB2vPaJ546axpADBaCZfdW9xaaTscFwqQKYg6ERJv9H7e7C4wOR)SdD1r9Bje0GzwQjrCWtpzmD6rQimZ7Cygn)TyqV318YG61en2zZLo25Iti1bNUmwFJcXtqURsjQJwiG2QLoWwZm1ewVYWryHZxQoxz99QakhPRuCn)MCudZAhcpXygM11ogZT8DMqM1sN7eBvu60wln3WCOUiRHSoMgDUrEJl(l1sND4TWeHUj46Q3TYv2KyNIMiZ6(mLwBisuXnDWqVNtv1s75qVxcgxPJI(jSh6RB0qQCi2t1UH8BttS2veyLR0tnLTvhXaE)Zvg0f)pGaUiSq(dAmjL4GtuwXNgQ(zHehn5uuIQdBFAgoRNVUrer)ZfVN5Bi0NKCZ1zVFHwOvWPjOCD08xMr0cofpZKRdAhbx8dJ18JPm1QAp)9OzIXpsZVbn8SuHZox7e4uFyj))rpzAH6Dmk9N7xYbU0vvOhmxncMpR2UEH6lCygXFS6l8fUxoZt3Xkxv)tisAfBGaI6bs5j6hSxtJo7m7pcDn6QwYxzxJUkTO3u85AFBYEfh37PRAcwT3RCfZ06ApB3i7KDWjCWJtA2SP1N6QVsthL78uhhTKLu1T7ApIG(hXu)oRgDmtYaGLEBU4gWgo0rNWr7WCszoUsWlqFKx0KyYMnNEJbxWUcEMn(7Q8YVln9EX(1lp8OTn6Mg4U4wUMQNLbnRQSHSvBlQV8O0p1jEB0L8QM(d7tN4lFJb0KrDVBhQnsU0g4UiZyqC2yIjQpjk548vaXwdyxeeSvfVfmoELpKDcjxVh9AImiUQNC26F7YGOjf4yWz91izQnXox(piI9ntYKcBs)BBcTHlFDtc5Wc7x2mqx3YiwYXRFsdtImiwO2kEQO1a1Bh4BWuK8(b)8p]] )
+spec:RegisterPack( "Arms", 20261026.1720, [[Hekili:TRvBpUnUr4FlbhGH9LnAT8Eo3LCRnqtVI7AaAAr9bCFts0s0Riw9Ilf16Ufl0V9oKuIIsIusBE5Yb0cKS2wIZ8mC48YdPKNR3V6DicXWEFyZ6nV2f(VJ73VX7a7XZyVdNrH3JUd(sgkf(7FIMwWV4Jj5OiUKf5L0q4gXm25I3E913ryXLhDcZtV(xW3tsixhl)W7WXssc7VM5D0mEfNXHEFWfUjUiuIuvWVHOusoTk4m)dc7XQGt8F(NtqffKWQG)cfb2dn)ejbSIV5BQc6j4s9Hwf464UDv175d8GW0lEBxTPe9ajfK(NlF8iTSi(NjSRBVXQQGi8juzcR4kHaHu0jwvWVIEatZ0u4p9poufCPXwURKeHDKO)oeJLGbRGHYcHpjGrZIHVeNNc)TO(Yl)B5ugkHpok5EmG2FhG4C(fmf((Heuk)Jly8zs2DnJQy1pckeSJ3HPfy69yAloCmegqRhfffX9yXeAYfsweCb(F(N4W7tWffzW)RVuic0zKuphHaJ6fdLfbtTQ3JczK8ScNZumefCeXE5URpkMS(Yj1vKt7owE6KJ8Nor5xYgxS48sMsk9l6qXPiswXT3SwdAqYqusIV8N(jKc2v8W3DKmctFuNlttXj6xHwMnumjIdmaP1xEEA5BwfAvrZvEgAbc4WzfKhAne1vmRfZ(aP1RVqX9kWWFarjOJW8umm8)ghwYW(NJrf4REaLuI3Xq07WmNymkHf7CoKD7M1tOgiIX)FvIlBuXlAUTthaEQaZyqaCH6YcH4H0JR)cr8UFoeb6xlAnsd04rMp68(1laFfZbCcq8RViQDVLXof0qaysKFrzweSY2d0imFfQ(M(4mUyrlQDGmsk2NL7hrW7xUC7RKd2PEWiAAoLNBeE)QV11z7QxEZuwcufWNxDnsTqLGZyoKuOW4dyWgHb4qrz3VF3w(k)W6poTqidq4XpXCZLhTvB3qcxbua7hmm2NrMQjPtYZJOqBMRklGftWXDxy0oxUI4xLhOtcjS972SEb35TFTbLeJP5KqFzeXqfXhpKPGZWPeCXo3fcnhwsPGRsleiUWNFhFwmfdwEs0cviRky2KZkbd1(Nc29wHvk)hf0f1v)RN6fMG1Gyryel2)cPiwBjwp0CZ6NmNTABf0)uj9rlkZD7ZqzYQJWuYMYEgwgFfHWWaNadEoTmooukL2j3EXsRjO3U9jt3tfRVYaOnLPa8ARgAOoMbrtfCbQxNnC)8MgX2H1WDacBcBpmbD2qSZMf1tr9XPMIBmgzbgkkH8FebLnLew2V4iFyI72uF8P(iVQb6HAC06jqUvehsfI8lOQc3fLBVPbe(GeKrmvN(nMcF4SV6e2OkeV4fP5paqVimhYJbD60zTRX6nMygJs5Jsg93wxQ5Q(x4vkSw(snSULsuL97ZiuVYFZ9aJGKXWa74ZSXR)RjXhxlaDf8P0fqxpkYvcLjS)U9d7ocNMaJUO4ookFDA3OzaFf64OH(NLUh9x8)uBGmmi4tRhIM(OA7gQtoFxESdb6w3xBwJMAmPD7Fx7nPH7hr7jnPV0SjstnsmlITMA20QLTqSy5eLA3T5PUzcB3oUly8YCYTYoi7t4Wv9H9Pyu0JW(Y6KeE7oP0YCpkMb2hu(rz)kXvlwRD2ozNe9HOCy632sC2NHMyJcST6hM4imjfHNjHa961Fj6QoPNzglkY(Y)uZE5B6l)2QaOssZ5SWYRcq8ZEjfWV50H0ADRokG(rOwgsVZFO69EhGGUcyG9pwUliAg3h4DW7a)uek4N6Nec4BFqC8H1loEVZ7GenVdYnpcFsHACqKL3HEKi8yaswewN1GUkSsPOk42QGB4Q8MEQSvy9U7vb73vfSzDvWcW3s4h42(QG1AwqdxeVdAP48PlGX3zfJUv8QcaqCfyOhxjb3odaHad7d3ACDOEyYa3oBdC)mmqJefM0iLszY6ETLv9(7JDk7MRRV3IUAPNyieuR7Sqt84GNEsB60PXchMFWwGQI1YmGXD7uW8gBWOiZmhyMC24U2cokkjIrzl1wNoHU9yMHIiqzj)8YTWtrK7w7AgHWImfVkyLW2Sv5OEUQBwVqZvyGhJqD9RA0OUov1fJSFUFZiv9SfJQFcyFZJpgBPb6BZEIuGncN7iBpx402iGZEMs)oP6GUuRoGTEYYLoZM3kDl0Et7263U2s147ox3YmU3EbA9TezCtRzO2NVS6V5SO3imgBjKCosMd9vKNekhI9KuOe)ACYcTf12yl)urdXOJOhxMPkRBJtdybmEyH4XBnAl(EpFbj)aF5dkKFq1J1Ix(OxgVJTXN2Iwer3Nssh4RjOmAZABpjMzIqJGJ3W12dQzEGOeCS(MJUoOCem(JjT(rRn2QAh)9GzI2JS7labU1s7S11oIDQoGQ)3GJzpQa1hDv35(CoKR2QcDmt3bM5ZIg5xjEU9Zi(Jfp3)p30pNCt1paoJTE7EiEcymzfqsmq9Am(TDzbBR(XFeybBJ26hjlyB1CuhCXu0rhL77qU02AOzeVxylQPX1oj7QDcgPCh8WIaB324tTL1Q7O6NY1R7XWJ)ZqPNB31CmoDpgWUmfhCuGIaG1oBNnHY(dDWPq1mmRuagwz7RaV4znjgL884B0zg7Y55TrMn2kV87cj(z7xNF4rZ2cQjKoBkKJXbRh5BjgIToyq95Nf(PwXBIUeFRMVB3gkheVpmQ2rTV5sYngV2KXnly0icudXi1N4LCS(cozIq5SmbtvXBmglVqtcMDI17bVeu9IR6iNj(OZZe1Bbo04m(ssn2MYxk(heX(Qr7KUQk4BRdTHV(Y6eY(9LM3mqv3slwYYlxvDNerqmxTLSyo1a57)6RWuK46E)3]] )
 
-spec:RegisterPack( "Fury", 20261026, [[Hekili:TR1xVnoUr8plbhGH9TzvSCQ3E7Iy)W2T9UUpSf40b03KeTeterKLuPOIBkc0N9oKuKIsIu2z3RB7dfytSJ08NFKCMFZOrBOF4VfgKIy4WVSz9M35d)egWEUchguHsEe9a8Lc0r43)Lg6Z8l(CEjkLRvDzdnbUrgJvv)HBU5bclR5Gxs5XB(f8JKCYnzYpcdo0qYz)1IWdt9vDfoj8l(WnW1jsV0g)3rukPK2gxX)GWGlDp)p)t5O6AssB8FMIaSqlVNKdi4h(H24rkU0u02yFp)TRA)mxWabSR)WqRPvnGCe0(NBE(aTPo7NjSB6VXQ24u89OMCw91cfsOO7zTX)g6jmTOn(M24tLNyhs8E4bdZlH2dneyj6jbXVcBSGXAowXTuqtrkMcF5t4JLuuo5FrkadeKv2WGR(R4Iu4JFbDSMrf35eg9K4lOI02ywgyR)gaHQYtyyTNIksGRGOWVskly0Y8CmihPOtw9UunMXa7Wrv7NrjmszrTxffdNHhqS3S7MdyAnM(iMgvZ4w9AY97o0C)9EY)0lT8uHdnrmwooQwSguAzErpk(iIuuF3TRn8oOzckpps(Nr5KA2184VDKccZuQQMJhX5MxH2umvn9cOhdJwsEnvN3kcCpzzCX6drn4IAYt9MqFf7wX(EG0VMNv8Dfq8Nquc6aGqHy4)joPHHJQYq14RFcL3G3Xq0hWmVmmkNL5vLWUBZ6ZyMeur0)Ob3OmXvQB7nWbVOdIuxwOep8CE7ZdMFehvcbUrDQ25Pjw8alcvTF9cyVI5bBcaZuKiyFVdzpNRHaW80OAzE3iNMI5NqD3mcxWvlDr3giJCehXkJsj49lxU9TsH96egrH8xEUrYJR(rFVTREZT8tlEg)hvHDqET4e)dDjJfL0JOCflbTewIaW96xb6awyzqkyyG9QsKs1bjixQgOw(j7A8kYdDyG8YYukWxDDtnCAb7mpKKUZNBl(v5rYKecB)UnRxW3D2V2HD05DcJjWFoUG5roce5pHtJgkHNANFOx8N3lzyAjjjsgBnfXCvGCoCb(ibxVZxA8KgkfqIrWuwTadrSmkg2LYtxOd(1Pf2bqsoWnFwpV3PNL6)169umILfDIuNzeGygZUz9l2tJTBpGq)XCCDDb8d3IoOaM6O78FNDlY3yim8XA732mrAGdhKYUyPZ8U72(IT7PdYxz3VkciWL98CwyOSR9Pmcn)ebktp9KEZmPvmqVA2fythCVlwMucHhqrypd7PwSqk5ldJY2UD(L)8uiYoaMezRdDlvTGej6azH4uO)Iumk9zOo3Gi)72jnRmGNIzaWHCE9YsRU(eCT32fZUQ9nfqVlAEBx5o9nF1ZxoUSaxkXn1vg6c3MQ(5ywZun0nWp6RgX7Yd7KHsl2iQIV59MU6vYEn6lwvwbr0uE7Q6wnVURb0C8t4Cr)OhWqF6ylv7GEQfs1gF76vMf3eUHZBMX5qMVSMs2jDLojMuwIyXvocbTzZVQ6KAT)wksQmY)DQDPpa((x4s5A9bKL79DTGGYPtPdhCqpH2wDx4bGfUijhvzRuGIRWuons2yXG25KwEwsPxg75vVsAkfaOyzbiTh5xqt9n0l3DRYjCHepBOT2MFVTq))tqfQOY(K6zTmyZaqbSvq4b0fEjqJXFQ5JIhkV75X6bP(r1SW84qkZcMTFomaIVRbPmN7XjeTGJ(WGWa(t4vZhPIur4BFrmxMUT5WpggiDtyGKMe(KcnrbzcHbJOldzGxgPSHWW5qB8(241TXlAJVc2dSZq27XXl5WadkcoqbhERd0AYFAcdNKRTX3bvi4M8p4CnysOcRLDTXBKRM(fNbcueZ2G9wN(yyGDBm4eFHpmdbLo3nVRqHPeG9GBaHVna(UlgG7VaaALH(SGuQLn09hDCQRJM4c9toeYKm2CHzNFxGYL8XV5GLxe4STn(LxSl0G4R24vCO9EhqRJ9NlI)Axr291beY5kF1KP)mNFBelYzQqia)gH7gNHRC3u2DtNU0iyWvLd5wOD4TYeHUlK0Ne77IyGxGWezwlVi82yKip)6HHUuJKcys5gb2FVamJPu0PHQ6hwr0OIqNljZvXOqECsq34JNLHF0O)KLhIKdHNpnlBm8kLLtf1gL8yY3Ptb140z4mmhGaTIZtsBDoPxOhKfbNLF21muVmpOv0gh7fDoOXiJ)Ai6M69CNQtRIoAXymq95oG)kROUwc1(dVzGQEgJVYUm(gH48bT)(v03flWWPpoCTFjZPSNyyam9NaZ)FJhxgiF9nE0p9tlHUJRjWJF4L6SpzT5ADXCOOwBDz4GvfEXgiGOE)3nxJi6zLoBRi)pqNuoB)r1kLbSUYyl3YawNT9g9eRoxRuZ28X4E3CXiy1Bx5kIrTXo3836yUKBUtty2UvTFoMGy8(jxg35OUMiRaIUgj20C472PEA4HtNviQ7j0kImw7TDOy23n4Vz(rcozQKkXMwHX5ZJ67MHyU(JVGMJFL9)6Ic57slN)UFaOAHTR5Pxt7oxq)ckbzDT5AX8LvIDPEDvPIIV11B2qE8aXB3vxfO)fGlFAQ12q2f5gJkwDUygQbE(UZ3tUToFUiiyJ(ubghVx8(z)m5DPpkQAGE2AC6YGOzTNPGZ67AFUNKBP4Fqe7BNTeg8KQ)yxOn813ithfHwOgwgVoP8)BsVftrIRh(V)]] )
+spec:RegisterPack( "Fury", 20261026.1720, [[Hekili:TR1xVnUns8plbfWWUBwflNZB7UWop0R9AV9HTavf4Ets0smrerwshfv8Ldb6Z(nKuKIsIu2z3E7DpuGDJvKM)8JKZ8BgnXH(H)EyqkIHd)0M1BENp8Fp)VBtya75kCyqfk5r0dWffOJWp)Bn0N53858sukxZ6YgAc8GmgRQ(d3CZdewwZbVKYJ38l4hj5KBYKFegCOHKZ(7fHhS7V6kCs4N8HhIRtKEQn(FGOusjTnUI)bHb36E(V(xZr11KK24FIIa8qlVNKdO4B(M24rkU0u02yFp)TRA)ixWab0R)WqRPvnGCe0(NBE(aTPo7NjSB6FWQ24u89OMCw91cfsOO7zTX)o6jmTOn(M24tLNyhs8E4bdZlH2dneyj6jbXVbBUGXAowXTuqtrkMcx8J4JLuuo5FtkadeKv2WG7(B4Iu4JFbDSMrfp5eg9K4curABmldS1VcqOQ8egw7POIe4oik8JKYcgTmphdYrk6KvVlvJzmWoCu1(rucJuwu7vrXW54be7n7V5aMwJPpIPr1mUvVMC)(dn3FVN8x9slpv4qteJLJJQfRbLwM30JIpIif17UDTH3bntq55rYFnkNuZUMhdUNuqyMsv1C8io38o0MIPQPxa9yy0sYRP68wrG7jlJlwFiQbxutEQ3e67y3k23dK(18SIVRaI)eIsqhaeked)VWjnmCuvgQgF9tO8g8EgI(aM5LHr5SmVQe2UnRpJzsqfr)ZgCJYexPES3ah8IoisDBHs8WZ5Tppy(rCuje4g1PANNMyXdSiu1DRxa7vmpytayNIeb735q2Z5AiampnQwM3nYPPy(ju3dJWfC1sx0TbYihXrSYOuc(ULl3(wPWEDcJOq(lp3i5XvFRV32vV5w(PfpJ)huHDqET4e)dDjJfL0JOCflbTewIaW96xb6awyzqkyyG9QsKs1bjixQgOw(E7A8kYdDyG8YYukWxDDtnCAb7mpKKU3NBl(D5rYKec7U9BwVGV7C3Ah2rN3jmMa)54cMh5iqK)eonAOeEQD(HEXFEVKHPLKKizS1ueZvbY5Wf4JeC9EFPXtAOuajgbtz1cmeXYOyyxkpDHo4xNwyhaj5a38z98Do9Su)pxVNIrSSOtK6mJaeZy2nRFXEA8mh(r3dHMoSN)2xN9KxdRux271HpOGZJ5466c4)Cl6GIAQJ25)o7wKFWry4J12FSzI(ahoGszXsN8c72(ITNPtcxz3VkcsWL98WwyqTR9Pmcn)ebAJyAK4Mzo5zGE1SlWMoQnSyzsje(cnj4zyp1IfOmEzywW2TZV8NNIt2HYKmpDQvPQfPirhsleNc93KIrPpd1HhKzUBV0SYeskMbah4K0llT66tW1EBxm7Q23ua9UO5JDLB33CypF(4YwCPepux5QlCBQ6NJ5pt1W5a)OVBeVluStguTyJOY(I3B6QNk7fQVyAzfert5TtRBf(6UgKZXpHZf9lFadVhb2s1yONFHuTX3UELzXxHB486zCoK5l7QKDsxZtIjLLWwCLJqqB28ZQoUw7VKI4kJ8)MAR6dGV(fwvUwFaz5zFvliOC6u6Wbh0tOTvpfEjDHlsYrv2kfO4kmLtJKnwmODoPLNLu6LXEE1RKMsbakwwas7r(n0uFd9YUBvoHlK4DxT1w)7Tf6)FdQqfv2pQExqd2mauaBfeEaVLqjqJXFR(JIHg09(I9Gu)QKwyECiLzbZ2pggaX31GuJNnZjeTGVccdcd4VfAnF0psLHR(KygsDB1H)qyG0vHbsQs4tk0ifKnegmIYmKbEAKYgcdNfTX31gVUnErB8vW(GDwYEpoEzhgyqtWbk4WBDGwtouty4KGTnEhuLGBY)IZ1GjPkSw23gVrUA6xCgiqroBd2BD6JHb3TXGt8f(Wmmu6C3CVcfMsc2dUbK(2a47UyaE3faqRS0NfKsTSHUVZXPUoAIl037qitczZfMDoEbkxYhrOdMErGZ224xEXUqdIVAJxXH27DaTUkaCr8x7kYUVwGqox5RMS9N58BJyrotvcb43iC34mCL7MYWB60LgbdUQEi3cTdVvMi0DXK(KyFxed8IeMiZAjgH3gJe55xpm0LBKuatk5iW(7fGzmLIonuvdXkIgvi6CjzUkifYJtc6gX9Sm8JgpPS8qK8pwaFIB2y4vklNCRnk5XKVtNuRXPZW5SoabAfNNK26SCVqpilcol)SR58EzEqROno2l6CqJrg)pvs3K5N7uDAv0rlgJH(p3b8Nzf11sO2F4ndu1Zb9v2LXxieNpO9pUI(UybgoH0HR9lzwQ9eddGP)ey(NnECzG8134r)eATe6oUMap(HxQZ(01MR1L(b3EbUXF75CJR2q6NN7L4MZUAC2kJ5CET2j2WzflCJnuajX(VB2MH0Z)D2Ey()GodD23IQ1qdyDLXMULHgpBNh6PWDUwdfwzmRXG4rJErDvrZQ3UYvmJAJDUzk2Xel3CNsaSDRA)0vgR5M040nl9InAkZci6AmFt5K2Tx9g(dN4Squ3tDwezS2B7qXSVBW)2qmsWjtAvj20kMoF)AFxCeZ3V)f0S)RRF(nU4q(Q0c9F4haQwY7Ag810(2f0)JsqwxB7wmFzLyxQxxvQO4QUEnhYKhi(lQRRd0)Loq(2HRTHSlYngvG7CXmud88DNF3eS1j3fbbB0NkW447Iq)SSM89xyuu1a9S1i4LbrZAptbN1VFdZ9MPlf)dIyF7SLWG38(B7cTHlFJmDueAHAyz86KYVtyVftrI7h(Fc]] )
 
 spec:RegisterPackSelector( "arms", "Arms", "|T132292:0|t Arms",
     "If you have spent more points in |T132292:0|t Arms than in any other tree, this priority will be automatically selected for you.",

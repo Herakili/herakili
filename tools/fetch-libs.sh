@@ -27,6 +27,16 @@ for lib in "$WORK"/x/Hekili/Libs/*/; do
     fi
 done
 
+# LibRangeCheck-3.0 comes from its own repository (as in .pkgmeta): the copy in older retail release zips
+# registers LEARNED_SPELL_IN_TAB unconditionally, which errors on Classic Era.
+if [ ! -e "$REPO_ROOT/Libs/LibRangeCheck-3.0/LibRangeCheck-3.0/LibRangeCheck-3.0.lua" ]; then
+    rm -rf "$REPO_ROOT/Libs/LibRangeCheck-3.0"
+    git clone -q --depth 1 https://github.com/WeakAuras/LibRangeCheck-3.0.git "$WORK/lrc"
+    rm -rf "$WORK/lrc/.git"
+    cp -r "$WORK/lrc" "$REPO_ROOT/Libs/LibRangeCheck-3.0"
+    echo "  added   Libs/LibRangeCheck-3.0 (from GitHub)"
+fi
+
 # Every library referenced by embeds.xml must now exist.
 missing=0
 while read -r path; do

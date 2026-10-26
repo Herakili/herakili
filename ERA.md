@@ -5,45 +5,62 @@ Era, Hardcore and Anniversary realms are covered; Season of Discovery (runes) is
 
 ## Status
 
-| Class   | Module            | Priorities                           |
-|---------|-------------------|--------------------------------------|
-| Warrior | `Era/Warrior.lua` | Fury, Arms (auto-selected by talents) |
+| Class   | Module            | Priorities                                                  |
+|---------|-------------------|-------------------------------------------------------------|
+| Warrior | `Era/Warrior.lua` | Fury, Arms (auto-selected by talents; Fury with no talents) |
 
-Other classes still need an `Era/<Class>.lua` module and APLs; the Wrath modules in `Wrath/` are the starting point.
+Other classes still need an `Era/<Class>.lua` module and APLs; the Wrath modules in `Wrath/` are the starting point,
+and `tools/era_talents.py <classID>` prints the class's exact Era talent table.
 
 ## What changed in the engine
 
 - `Hekili_Vanilla.toc` (`X-Flavor: Era`) loads `Era\Classes.lua` and the Era class modules; `Hekili.IsEra()` was added and
   `Hekili.IsClassic()` now covers Wrath and Era, so every "classic vs. retail" branch applies to Era too.
-- Fixes for APIs that are gone or moved on the 1.15.8+ client: the options panel uses the Settings API, display dragging uses
-  `GetPhysicalScreenSize`, `GetPlayerAuraBySpellID` is rebuilt from `C_UnitAuras`, the active spec group comes from
-  `C_SpecializationInfo`, combat-rating lookups tolerate missing `CR_*` constants, and talent points per tree are read from
-  `C_SpecializationInfo.GetSpecializationInfo` (Era/Classes.lua).
-- LibDualSpec is optional: it only loads on Era realms with dual spec (Season of Discovery, Anniversary).
-- LibRangeCheck-2.0 was replaced by LibRangeCheck-3.0 (same API, maintained, Era-aware).
-- On a fresh install the talent-based priority selection works without opening the options first.
+- 1.15.8+ client changes: options panel via the Settings API; display dragging via `GetPhysicalScreenSize`;
+  `GetPlayerAuraBySpellID` rebuilt from `C_UnitAuras`; spec group via `C_SpecializationInfo`; tolerant combat-rating
+  lookups; talent points per tree via `C_SpecializationInfo.GetSpecializationInfo` (Era/Classes.lua).
+- Events the client doesn't have are never registered (`ns.IsEventValid`, e.g. `LEARNED_SPELL_IN_TAB`).
+- Items that don't exist on the client (e.g. the shared Wrath potion list) are skipped instead of erroring in
+  `Item:ContinueOnItemLoad`, which used to abort `Classes.lua` and cascade into hundreds of "nil" errors.
+- The GCD is tracked through the class module's `gcd` spell (Era has no spell 61304).
+- LibDualSpec is optional (it only loads on Era realms with dual spec); LibRangeCheck-3.0 (v38, Era-aware) replaces 2.0.
+- Combat log flags come from `Enum.CombatLogObject` (the `COMBATLOG_OBJECT_*` globals are deprecation fallbacks on Era).
+- On a fresh profile the class module's default priority is used, and talent-based selection works without opening the
+  options first.
+- Upstream bugs fixed along the way: caption `SetJustifyV` with LEFT/RIGHT (the modern client rejects it),
+  `QueueRebuildUI` out of scope in `Hekili:SetOption`, `HandleSpellData` unable to unregister itself (duplicate handlers),
+  `SaveDebugSnapshot( nil )` indexing a nil display (broke snapshots), Charge's `not combat` test (always false), and two
+  debug-path calls to removed APIs.
 
-Some APIs Hekili uses (`UnitBuff`, `IsPlayerSpell`, `GetTalentTabInfo`, ...) exist on Era only through Blizzard's
-deprecation fallbacks, which are on by default (`loadDeprecationFallbacks` CVar).
+Some APIs Hekili uses (`UnitBuff`, `IsPlayerSpell`, `GetTalentTabInfo`, `GetItemInfo`, ...) exist on Era only through
+Blizzard's deprecation fallbacks, which are on by default (`loadDeprecationFallbacks` CVar).
 
 ## Tools
 
-All tools run from the repository root.
+All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries) and `tools/fetch-era-api.sh`
+(Era API dumps, UI-source global names, client DB2 tables from wago.tools, then `tools/era_data.py`).
 
 | Command | Purpose |
 |---------|---------|
-| `tools/fetch-libs.sh` | Copy the third-party libraries (normally pulled in by the packager via `.pkgmeta`) from an official Hekili release zip into `Libs/`. |
+| `LIBS=<dir> tools/test.sh` | Run everything below; `quick` skips the leveling runs, `HARNESS_SAVEDVARS=<Hekili.lua>` adds a run from a saved profile. |
+| `luajit tools/harness.lua Hekili_Vanilla.toc WARRIOR 17/34/0` | Runs the addon against a model of the Era client built from its own data: only APIs that exist resolve, spells/items/strings/CVars/constants/events come from the client tables, unknown items and events error like the client. Plays login, spec detection, priority restore/selection, compiles every entry, walks the options tree, then combat scenarios through the real engine. `HARNESS_LEVEL`, `HARNESS_DEBUG=<scenario>` (Hekili's decision log), `HARNESS_TARGETDEBUG`, `HARNESS_DUMP`. |
 | `tools/build.sh [AddOns dir]` | Assemble `dist/Hekili`; optionally copy it into a WoW `Interface/AddOns` folder. |
-| `LIBS=<dir> lua5.1 tools/packtool.lua embed Era/Warrior.lua Era/APLs/WarriorFury.simc Fury 1` | Encode an APL into the built-in pack string in a class module. `LIBS` must contain `LibDeflate/` and `Ace3/` checkouts. `decode` / `encode` / `decodestr` are also available. |
-| `python3 tools/check_apl.py Era/Warrior.lua Era/APLs/*.simc` | Check that every action, aura, talent and setting an APL references exists in the module. |
-| `tools/fetch-era-api.sh` then `luajit tools/harness.lua Hekili_Vanilla.toc WARRIOR 17/34/0` | Offline load test against the real Era API list: loads the addon, runs login, spec detection, pack restore and selection, and compiles every priority entry. |
+| `LIBS=<dir> lua5.1 tools/packtool.lua embed Era/Warrior.lua Era/APLs/WarriorFury.simc Fury 1` | Encode an APL into the built-in pack in a class module (versioned by date and time, so profiles update). `decode` / `encode` / `decodestr` too. |
+| `python3 tools/check_apl.py Era/Warrior.lua Era/APLs/*.simc` | Every action, aura, talent and setting an APL references exists. |
+| `luajit tools/dump_spec.lua Era/Warrior.lua WARRIOR > ids.txt; python3 tools/check_ids.py ids.txt 1` | Every spell, rank, aura and talent ID exists on Era, names match, rank chains are complete. |
+| `python3 tools/check_globals.py` | Globals the addon reads that the Era client doesn't provide (with source lines). |
+| `python3 tools/check_events.py` | Registered events the Era client doesn't have. |
+| `python3 tools/check_shared.py <HARNESS_DUMP file>` | Shared (all-class) abilities/auras/items that don't exist on Era. |
+| `python3 tools/era_talents.py <classID>` / `tools/spell_lookup.py "<name>"` | Era talent table as RegisterTalents lines / every Era spell with a name, its rank, level and skill line. |
 
 ## Warrior notes
 
-- Spell, rank, talent and aura IDs were checked against Wowhead's Classic database.
+- Spell, rank, talent and aura IDs come from / are verified against the Era client tables (build 1.15.9.70003).
 - Rage: white hits use the 1.x formula (7.5 × damage / c); a queued Heroic Strike or Cleave replaces the main-hand swing's rage.
 - Overpower is tracked from your target's dodges (5 s window); stance swaps keep rage up to Tactical Mastery's limit.
-- Enemy counting for Cleave / Whirlwind uses nameplates within 8 yards plus damage-based detection as a fallback.
+- Enemy counting for Cleave / Whirlwind: enemy nameplates within 8 yards (enable them with V; they are off by default on
+  Era), plus damage-based detection from your abilities' hits (white swings don't count).
+- Racials: Blood Fury and Berserking are used with the cooldowns when your race has them.
 - Settings (Hekili options → Warrior): Heroic Strike / Cleave rage thresholds, Execute-phase queueing, Hamstring weaving
   for Windfury, Sunder / Demoralizing Shout upkeep, Rend while leveling, Bloodthirst/Mortal Strike over Execute above an
   attack-power threshold, and the Fury Overpower stance dance.

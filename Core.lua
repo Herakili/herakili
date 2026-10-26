@@ -1249,7 +1249,7 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
                                                             elseif state.cooldown[ next_action ].remains > 0 then
                                                                 if debug then self:Debug( "Attempted to Pool Resources for Next Entry ( %s ), but the next entry is on cooldown.  Skipping.", next_action ) end
                                                             elseif state[ next_res ].current >= next_cost + extra_amt then
-                                                                if debut then self:Debug( "Attempted to Pool Resources for Next Entry ( %s ), but we already have all the resources needed ( %.2f > %.2f + %.2f ).  Skipping.", next_ation, state[ next_res ].current, next_cost, extra_amt ) end
+                                                                if debug then self:Debug( "Attempted to Pool Resources for Next Entry ( %s ), but we already have all the resources needed ( %.2f > %.2f + %.2f ).  Skipping.", next_action, state[ next_res ].current, next_cost, extra_amt ) end
                                                             else
                                                                 -- Oops.  We only want to wait if
                                                                 local next_wait = state[ next_res ][ "time_to_" .. ( next_cost + extra_amt ) ]

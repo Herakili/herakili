@@ -28,6 +28,18 @@ local GetItemCooldown = _G.C_Container.GetItemCooldown
 
 local GetPlayerAuraBySpellID = ns.GetPlayerAuraBySpellID
 
+-- Items from other expansions (e.g. Wrath potions on Classic Era) don't exist on every client, and the
+-- 1.15.8+ Item mixin errors in ContinueOnItemLoad for them.  Only return items the client knows.
+local DoesItemExistByID = C_Item and C_Item.DoesItemExistByID
+
+local function LoadableItem( itemID )
+    if not itemID then return end
+    if DoesItemExistByID and not DoesItemExistByID( itemID ) then return end
+
+    local item = Item:CreateFromItemID( itemID )
+    if not item:IsItemEmpty() then return item end
+end
+
 local GetSpellDescription, GetSpellTexture = _G.GetSpellDescription, _G.GetSpellTexture
 
 local GetSpecialization = _G.GetSpecialization or function() return C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup and C_SpecializationInfo.GetActiveSpecGroup() or GetActiveTalentGroup() end
@@ -480,9 +492,9 @@ local HekiliSpecMixin = {
             end
         end
 
-        local potionItem = Item:CreateFromItemID( data.item )
+        local potionItem = LoadableItem( data.item )
 
-        if not potionItem:IsItemEmpty() then
+        if potionItem then
             potionItem:ContinueOnItemLoad( function()
                 if not data.name then data.name = potionItem:GetItemName() end
                 if not data.link then data.link = potionItem:GetItemLink() end
@@ -618,8 +630,10 @@ local HekiliSpecMixin = {
                 Hekili.OptionsReady = false
 
                 if not a.unlisted then
-                    class.abilityList[ ability ] = "|T" .. ( a.texture or texture ) .. ":0|t " .. a.link
-                    class.itemList[ a.id ] = "|T" .. a.texture .. ":0|t " .. a.link
+                    -- The item may not exist on this client (e.g. Wrath potions on Classic Era); use the "?" icon.
+                    local icon = a.texture or 134400
+                    class.abilityList[ ability ] = "|T" .. icon .. ":0|t " .. a.link
+                    class.itemList[ a.id ] = "|T" .. icon .. ":0|t " .. a.link
 
                     class.abilityByName[ a.name ] = a
                 end
@@ -629,8 +643,8 @@ local HekiliSpecMixin = {
                 -- Register the item if it doesn't already exist.
                 class.specs[0]:RegisterGear( ability, item )
 
-                local actionItem = Item:CreateFromItemID( item )
-                if not actionItem:IsItemEmpty() then
+                local actionItem = LoadableItem( item )
+                if actionItem then
                     local itempcall = function()
                         actionItem:ContinueOnItemLoad( function( success )
                             --[[if not success then
@@ -729,9 +743,9 @@ local HekiliSpecMixin = {
                                     local addedToItemList = false
 
                                     for _, id in ipairs( data.items ) do
-                                        local copyItem = Item:CreateFromItemID( id )
+                                        local copyItem = LoadableItem( id )
 
-                                        if not copyItem:IsItemEmpty() then
+                                        if copyItem then
                                             copyItem:ContinueOnItemLoad( function()
                                                 local name = copyItem:GetItemName()
                                                 local link = copyItem:GetItemLink()
@@ -1023,13 +1037,17 @@ function Hekili:RestoreDefaults()
                 if specID then
                     local spec = rawget( p.specs, specID )
                     if spec then
+                        -- Prefer the class module's default priority over whichever pack happens to be restored first.
+                        local preferred = class.specs[ specID ] and class.specs[ specID ].options and class.specs[ specID ].options.package
+                        if not preferred or not class.packs[ preferred ] then preferred = k end
+
                         if spec.package then
                             local currPack = p.packs[ spec.package ]
                             if not currPack or currPack.spec ~= specID then
-                                spec.package = k
+                                spec.package = preferred
                             end
                         else
-                            spec.package = k
+                            spec.package = preferred
                         end
                     end
                 end
@@ -2125,6 +2143,7 @@ all:RegisterAuras( {
     berserking = {
         id = 26297,
         duration = 10,
+        copy = { 20554, 26296, 26297 }, -- mana, rage and energy versions (Classic)
     },
 
     hyper_organic_light_originator = {
@@ -2140,6 +2159,7 @@ all:RegisterAuras( {
     shadowmeld = {
         id = 58984,
         duration = 3600,
+        copy = { 20580, 58984 }, -- 20580 on Classic Era
     },
 
     ferocity_of_the_frostwolf = {
@@ -3288,6 +3308,20 @@ all:RegisterAbilities( {
 
         isItem = true,
         item = function()
+            if Hekili.IsEra() then
+                -- Classic Era: Major, Superior, Greater, regular, Lesser and Minor Mana Potion.
+                if not Hekili.PLAYER_ENTERING_WORLD or not rawget( state, "mana" ) then return 13444 end
+
+                local deficit = mana.deficit
+                if deficit > 2250 and GetItemCount( 13444 ) > 0 then return 13444 end
+                if deficit > 1500 and GetItemCount( 13443 ) > 0 then return 13443 end
+                if deficit > 900 and GetItemCount( 6149 ) > 0 then return 6149 end
+                if deficit > 585 and GetItemCount( 3827 ) > 0 then return 3827 end
+                if deficit > 360 and GetItemCount( 3385 ) > 0 then return 3385 end
+                if GetItemCount( 2455 ) > 0 then return 2455 end
+                return 13444
+            end
+
             if not Hekili.PLAYER_ENTERING_WORLD or not rawget( state, "mana" ) then return 45276 end
 
             local deficit = mana.deficit

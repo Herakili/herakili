@@ -11,6 +11,9 @@ local TTD = ns.TTD
 
 local GetPlayerAuraBySpellID = ns.GetPlayerAuraBySpellID
 
+-- On 1.15.8+ clients the COMBATLOG_OBJECT_* globals only exist through the deprecation fallbacks.
+local REACTION_FRIENDLY = ( Enum and Enum.CombatLogObject and Enum.CombatLogObject.ReactionFriendly ) or COMBATLOG_OBJECT_REACTION_FRIENDLY or 0x10
+
 local formatKey = ns.formatKey
 
 local abs = math.abs
@@ -144,6 +147,7 @@ end
 Hekili.EventSources = {}
 
 ns.RegisterEvent = function( event, handler )
+    if event ~= "FRAME_UPDATE" and not ns.IsEventValid( event ) then return end
 
     handlers[ event ] = handlers[ event ] or {}
     insert( handlers[ event ], handler )
@@ -177,6 +181,7 @@ local UnregisterEvent = ns.UnregisterEvent
 
 -- For our purposes, all UnitEvents are player/target oriented.
 ns.RegisterUnitEvent = function( event, unit1, unit2, handler )
+    if not ns.IsEventValid( event ) then return end
     if not unit1 then unit1 = "player" end
 
     if not unitHandlers[ unit1 ] then
@@ -271,7 +276,9 @@ do
 
     local requeued = {}
 
-    local HandleSpellData = function( event, spellID, success )
+    -- Declared first so the function can unregister itself (a local isn't in scope in its own definition).
+    local HandleSpellData
+    HandleSpellData = function( event, spellID, success )
     local callbacks = spellCallbacks[ spellID ]
 
     if callbacks then
@@ -1620,7 +1627,7 @@ local function CLEU_HANDLER( event, timestamp, subtype, hideCaster, sourceGUID, 
         return
     end
 
-    local hostile = ( bit.band( destFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY ) == 0 ) and not IsActuallyFriend( destName )
+    local hostile = ( bit.band( destFlags, REACTION_FRIENDLY ) == 0 ) and not IsActuallyFriend( destName )
 
     if dmg_events[ subtype ] and amTarget then
         local damage, damageType

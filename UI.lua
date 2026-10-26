@@ -862,6 +862,13 @@ do
         VEHICLE_UPDATE = 1,
     }
 
+    -- Drop events this client doesn't have; registering them is an error.
+    for _, list in ipairs( { alphaUpdateEvents, kbEvents, flashEvents } ) do
+        for event in pairs( list ) do
+            if not ns.IsEventValid( event ) then list[ event ] = nil end
+        end
+    end
+
     local pulseAuras = 0.1
     local pulseDelay = 0.05
     local pulseGlow = 0.25
@@ -1325,7 +1332,7 @@ do
                                     local init, duration = 0, 0
 
                                     if a.gcd ~= "off" then
-                                        start, duration = GetSpellCooldown( 61304 )
+                                        start, duration = GetSpellCooldown( ns.GCDSpellID or 61304 )
                                         if start > 0 then moment = start + duration - now end
                                     end
 
@@ -1523,7 +1530,7 @@ do
                         local start, duration = 0, 0
 
                         if a.gcd ~= "off" then
-                            start, duration = GetSpellCooldown( 61304 )
+                            start, duration = GetSpellCooldown( ns.GCDSpellID or 61304 )
                             if start > 0 then moment = start + duration - now end
                         end
 
@@ -1653,7 +1660,7 @@ do
         end
 
         function d:RefreshCooldowns( event )
-            local gStart = GetSpellCooldown( 61304 )
+            local gStart = GetSpellCooldown( ns.GCDSpellID or 61304 )
             local cStart = ( select( 4, UnitCastingInfo( "player" ) ) or select( 4, UnitCastingInfo( "player" ) ) or 0 ) / 1000
 
             local now = GetTime()
@@ -1779,9 +1786,10 @@ do
                 end )
             end
 
-            if event == "CURRENT_SPELL_CAST_CHANGED" then
-                local b = self.Buttons[ 1 ]
+            local b = event == "CURRENT_SPELL_CAST_CHANGED" and self.Buttons[ 1 ]
 
+            -- No button yet if the display hasn't been (successfully) built.
+            if b then
                 local ability = b.Ability
                 local isItem, id = false, ability and ability.id
 
@@ -2500,7 +2508,7 @@ do
         b.Caption:ClearAllPoints()
         b.Caption:SetPoint( capAnchor, b, capAnchor, conf.captions.x or 0, conf.captions.y or 0 )
         b.Caption:SetHeight( b:GetHeight() / 2 )
-        b.Caption:SetJustifyV( capAnchor:match("RIGHT") and "RIGHT" or ( capAnchor:match( "LEFT" ) and "LEFT" or "CENTER" ) )
+        b.Caption:SetJustifyV( capAnchor:match("TOP") and "TOP" or ( capAnchor:match( "BOTTOM" ) and "BOTTOM" or "MIDDLE" ) )
         b.Caption:SetJustifyH( conf.captions.align or "CENTER" )
         b.Caption:SetTextColor( unpack( conf.captions.color ) )
         b.Caption:SetWordWrap( false )

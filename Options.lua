@@ -969,6 +969,8 @@ do
             end
         end )
     end
+    -- Hekili:SetOption (outside this block) needs it too.
+    ns.QueueRebuildUI = QueueRebuildUI
 
     function Hekili:SetDisplayOption( info, val, v2, v3, v4 )
         local n = #info
@@ -10153,12 +10155,12 @@ function Hekili:SetOption( info, input, ... )
     if Rebuild then
         ns.refreshOptions()
         ns.loadScripts()
-        QueueRebuildUI()
+        ns.QueueRebuildUI()
     else
         if RebuildOptions then ns.refreshOptions() end
         if RebuildScripts then ns.loadScripts() end
         if RebuildCache and not RebuildUI then Hekili:UpdateDisplayVisibility() end
-        if RebuildUI then QueueRebuildUI() end
+        if RebuildUI then ns.QueueRebuildUI() end
     end
 
     if ns.UI.Minimap then ns.UI.Minimap:RefreshDataText() end

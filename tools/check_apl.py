@@ -5,6 +5,7 @@ Usage: python3 tools/check_apl.py <Class.lua> <file.simc> [<file.simc> ...]
 Checks actions, buff./debuff./cooldown./talent./settings./action. references and
 call/run_action_list targets.  Engine-provided names are allowed via ENGINE_* below.
 """
+import os
 import re
 import sys
 
@@ -26,6 +27,14 @@ def main():
 
     abilities = table_keys(src, "RegisterAbilities")
     auras = table_keys(src, "RegisterAuras")
+
+    # Shared abilities/auras every class gets (racials, potions, ...) from Classes.lua: all:Register*( { ... } ).
+    shared_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Classes.lua")
+    if os.path.exists(shared_path):
+        shared = open(shared_path, encoding="utf-8").read()
+        for m in re.finditer(r"all:Register(Abilities|Auras)\(\s*\{(.*?)\n\}\s*\)", shared, re.S):
+            keys = set(re.findall(r"^    ([a-z_0-9]+)\s*=", m.group(2), re.M))
+            (abilities if m.group(1) == "Abilities" else auras).update(keys)
     talents = table_keys(src, "RegisterTalents")
     settings = set(re.findall(r'spec:RegisterSetting\(\s*"([a-z_0-9]+)"', src))
     exprs = set(re.findall(r'spec:RegisterStateExpr\(\s*"([a-z_0-9]+)"', src))

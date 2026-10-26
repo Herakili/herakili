@@ -876,6 +876,9 @@ Hekili:ProfileCPU( "Audit", ns.Audit )
 
 
 function Hekili:DumpDotInfo( aura )
+    local IsAddOnLoaded = _G.IsAddOnLoaded or C_AddOns.IsAddOnLoaded
+    local LoadAddOn = _G.LoadAddOn or C_AddOns.LoadAddOn
+
     if not IsAddOnLoaded( "Blizzard_DebugTools" ) then
         LoadAddOn( "Blizzard_DebugTools" )
     end
@@ -1259,7 +1262,7 @@ do
 
         for k, v in pairs( db ) do
             local unit = ( v.unit or "unknown" )
-            local excluded = CheckEnemyExclusions( k )
+            local excluded = v.npcid and enemyExclusions[ v.npcid ]
 
             if v.n > 3 then
                 output = output .. format( "\n    %-11s: %4ds [%d] #%6s%s %s", unit, v.deathTime, v.n, v.npcid, excluded and "*" or "", UnitName( v.unit ) or "Unknown" )

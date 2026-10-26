@@ -6946,7 +6946,9 @@ function Hekili:SpecializationChanged()
     local specs = { 0 }
 
     if Hekili.IsClassic() then
-        specs[ 2 ] = currentID
+        -- Era: the class module comes first, so its own auras/abilities override the shared (Wrath-ID) ones.
+        if Hekili.IsEra() then table.insert( specs, 1, currentID )
+        else specs[ 2 ] = currentID end
         state.spec.id = currentID
         state.spec.name = currentClass
         state.spec.key = currentClass:lower()

@@ -1,0 +1,51 @@
+## Frost Mage (Classic Era 1.15)
+## Sources: Classic Era mage guides (Wowhead Classic Frost Mage DPS / leveling guides, Warcraft Tavern / wowtbc.gg Classic
+## mage guides, the Classic mage Discord's AoE-grinding notes).  Frostbolt is the nuke; rank choice is up to you.
+## Mana gems, Evocation, the wand, armor choice, Cold Snap and Frost Nova AoE are controlled in the Mage settings.
+
+actions.precombat+=/arcane_intellect,if=buff.arcane_intellect.down&buff.arcane_brilliance.down
+actions.precombat+=/mage_armor,if=armor_choice=1&buff.mage_armor.down
+actions.precombat+=/ice_armor,if=armor_choice=2&buff.ice_armor.down
+actions.precombat+=/frost_armor,if=armor_choice=3&buff.frost_armor.down
+actions.precombat+=/conjure_mana_ruby,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_citrine,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_jade,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_agate,if=settings.conjure_gems
+actions.precombat+=/ice_barrier,if=buff.ice_barrier.down
+
+actions+=/counterspell
+actions+=/call_action_list,name=mana_mgmt
+actions+=/ice_block,if=health.pct<15&time>0
+actions+=/ice_barrier,if=buff.ice_barrier.down&time>0
+actions+=/cold_snap,if=settings.cold_snap&time>0&(talent.ice_barrier.enabled&buff.ice_barrier.down&cooldown.ice_barrier.remains>10&toggle.defensives|active_enemies>=3&target.distance<=10&cooldown.frost_nova.remains>10&cooldown.cone_of_cold.remains>3)
+## Wanding for mana: keep shooting (only Frost Nova a mob that reaches you).
+actions+=/run_action_list,name=wanding,if=wanding
+actions+=/call_action_list,name=cooldowns,if=time>0
+actions+=/run_action_list,name=aoe,if=active_enemies>=3
+actions+=/fire_blast,if=moving
+actions+=/cone_of_cold,if=moving
+actions+=/frostbolt
+## Level 1-3: Fireball until Frostbolt is learned.
+actions+=/fireball,if=!action.frostbolt.known
+
+## Mana: gem, Evocation, then the wand.
+actions.mana_mgmt+=/mana_gem,if=time>0&mana.pct<=settings.mana_gem_pct&mana.deficit>=mana_gem_value
+actions.mana_mgmt+=/evocation,if=time>0&!moving&mana.pct<=settings.evocation_pct
+actions.mana_mgmt+=/shoot,if=time>0&settings.wand_mana_pct>0&(wand_mana|mana.current<action.frostbolt.cost&action.frostbolt.known|mana.current<action.fireball.cost&!action.frostbolt.known)
+
+actions.cooldowns+=/arcane_power
+actions.cooldowns+=/presence_of_mind
+actions.cooldowns+=/berserking
+actions.cooldowns+=/use_items
+
+## AoE: Frost Nova when the pack is on you, Cone of Cold / Arcane Explosion in close, Blizzard otherwise.
+actions.aoe+=/frost_nova,if=settings.aoe_frost_nova&target.distance<=10&debuff.frozen.down
+actions.aoe+=/cone_of_cold,if=target.distance<=10&debuff.frozen.down
+actions.aoe+=/arcane_explosion,if=target.distance<=10&debuff.frozen.down&active_enemies>=6
+actions.aoe+=/fire_blast,if=moving
+actions.aoe+=/cone_of_cold,if=moving
+actions.aoe+=/blizzard
+actions.aoe+=/frostbolt
+actions.aoe+=/fireball,if=!action.frostbolt.known
+
+actions.wanding+=/frost_nova,if=target.distance<=10&debuff.frozen.down

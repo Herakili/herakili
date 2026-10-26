@@ -1,0 +1,46 @@
+## Balance Druid (Classic Era 1.15).  Also used for Restoration (Hekili doesn't do healing).
+## Sources: Classic Era balance guides (Wowhead Classic Balance DPS guide, Warcraft Tavern Moonkin guide, the Classic
+## moonkin community's Starfire-spam rotation: Faerie Fire if no other druid, Moonfire / Insect Swarm on long targets,
+## Starfire, Moonfire while moving, Hurricane for packs).
+## Main nuke, DoTs, Faerie Fire, mana conservation and Hurricane targets are controlled in the Druid settings.
+
+actions.precombat+=/mark_of_the_wild,if=!buff.mark_of_the_wild.up&!buff.gift_of_the_wild.up
+actions.precombat+=/omen_of_clarity,if=!buff.omen_of_clarity.up
+actions.precombat+=/moonkin_form,if=!buff.form.up
+
+## In an animal form, follow that form's rotation.
+actions+=/run_action_list,name=cat,if=buff.cat_form.up
+actions+=/run_action_list,name=bear,if=buff.bear_form.up
+actions+=/moonkin_form
+actions+=/faerie_fire,if=settings.faerie_fire&!conserve_mana&!debuff.faerie_fire.up&target.time_to_die>15
+actions+=/hurricane,if=active_enemies>=settings.hurricane_targets&!conserve_mana
+actions+=/moonfire,if=moving&!debuff.moonfire.up
+actions+=/insect_swarm,if=settings.dot_insect_swarm&!conserve_mana&debuff.insect_swarm.remains<1&target.time_to_die>10
+actions+=/moonfire,if=settings.dot_moonfire&!conserve_mana&debuff.moonfire.remains<1&target.time_to_die>10
+actions+=/moonfire,if=moving
+actions+=/starfire,if=nuke_starfire&target.time_to_die>action.starfire.cast_time
+actions+=/wrath
+
+## Cat Form.
+actions.cat+=/ravage,if=ravage_opener
+actions.cat+=/pounce
+actions.cat+=/faerie_fire_feral,if=settings.faerie_fire&!debuff.faerie_fire.up&target.time_to_die>10
+actions.cat+=/cat_form,if=powershift_now
+actions.cat+=/rip,if=combo_points.current>=5&bleeds_wanted&!debuff.rip.up&target.time_to_die>=settings.rip_ttd
+actions.cat+=/ferocious_bite,if=combo_points.current>=5
+actions.cat+=/ferocious_bite,if=combo_points.current>=3&target.time_to_die<4
+actions.cat+=/rake,if=bleeds_wanted&!debuff.rake.up&!buff.clearcasting.up&combo_points.current<5&target.time_to_die>9
+actions.cat+=/shred,if=behind_target
+actions.cat+=/claw,if=!behind_target|!action.shred.known
+
+## Bear Form.
+actions.bear+=/feral_charge,use_off_gcd=1,if=target.outside7&target.within25
+actions.bear+=/bash
+actions.bear+=/frenzied_regeneration,if=health.pct<settings.frenzied_regen_pct&rage.current>=30
+actions.bear+=/enrage,use_off_gcd=1,if=rage.current<20
+actions.bear+=/demoralizing_roar,if=(settings.demo_roar|active_enemies>2)&debuff.demoralizing_roar.remains<3&!debuff.demoralizing_shout.up
+actions.bear+=/swipe,if=active_enemies>1
+actions.bear+=/maul,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.maul_rage_threshold
+actions.bear+=/maul,use_off_gcd=1,if=active_enemies>1&rage.current>=action.swipe.cost+action.maul.cost
+actions.bear+=/faerie_fire_feral,if=settings.faerie_fire&!debuff.faerie_fire.up
+actions.bear+=/swipe,if=rage.current>=settings.swipe_rage_threshold

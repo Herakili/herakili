@@ -30,7 +30,10 @@ subtext = {int(r["ID"]): r["NameSubtext_lang"] for r in table("Spell")}
 newer, older = {}, {}
 for r in table("SkillLineAbility"):
     spell, sup, mask = int(r["Spell"]), int(r["SupercedesSpell"] or 0), int(r["ClassMask"] or 0)
-    if sup and (mask == 0 or mask & class_mask):
+    # Only rank links: a different spell that replaces another (Dire Bear Form over Bear Form) or a Season of
+    # Discovery variant ("Swipe (Cat)" over Swipe Rank 5) is not a higher rank of it.
+    is_rank = names.get(spell) == names.get(sup) and (subtext.get(spell, "").startswith("Rank") or subtext.get(spell) == subtext.get(sup))
+    if sup and is_rank and (mask == 0 or mask & class_mask):
         newer[sup] = spell
         older[spell] = sup
 

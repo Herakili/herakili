@@ -1,0 +1,55 @@
+## Affliction Warlock (Classic Era 1.15)
+## Sources: Warcraft Tavern / Wowhead Classic warlock DPS guides, the Classic warlock sim (Kristoferhh WarlockSimulatorClassic) defaults.
+## Curse, Life Tap thresholds, Immolate, Drain Soul execute, Drain Life, wand, AoE and demon choice are in the Warlock settings.
+## DoTs are reapplied once they fall off (no pandemic window on Era).
+
+actions.precombat+=/demon_armor,if=buff.armor.remains<60
+actions.precombat+=/demon_skin,if=buff.armor.remains<60
+actions.precombat+=/call_action_list,name=pet
+actions.precombat+=/life_tap,if=mana.pct<settings.life_tap_mana_pct&health.pct>settings.life_tap_health_pct
+
+actions+=/fel_domination,if=pet_needed&time>0
+actions+=/call_action_list,name=pet
+actions+=/call_action_list,name=defensive
+actions+=/call_action_list,name=aoe,if=active_enemies>=settings.aoe_targets
+actions+=/shadow_bolt,if=buff.shadow_trance.up&buff.shadow_trance.remains<3
+actions+=/call_action_list,name=curse
+actions+=/siphon_life,if=debuff.siphon_life.down&target.time_to_die>10
+actions+=/corruption,if=debuff.corruption.down&target.time_to_die>8
+actions+=/immolate,if=settings.immolate&debuff.immolate.down&target.time_to_die>10
+actions+=/shadow_bolt,if=buff.shadow_trance.up
+actions+=/use_items,if=time>0
+actions+=/drain_soul,if=settings.drain_soul_execute&target.health.pct<25
+actions+=/call_action_list,name=regen
+actions+=/drain_life,if=!group&pet.voidwalker.up&health.pct<80&mana.pct>=settings.wand_mana_pct
+actions+=/shadow_bolt,if=buff.shooting.down|mana.pct>=settings.wand_mana_pct
+actions+=/shoot
+
+## Demon: summon only out of combat (or after Fel Domination), then Demonic Sacrifice / Soul Link.
+actions.pet+=/summon_imp,if=pet_needed&pet_imp&(time=0|buff.fel_domination.up)
+actions.pet+=/summon_voidwalker,if=pet_needed&pet_voidwalker&(time=0|buff.fel_domination.up)
+actions.pet+=/summon_succubus,if=pet_needed&pet_succubus&(time=0|buff.fel_domination.up)
+actions.pet+=/summon_felhunter,if=pet_needed&pet_felhunter&(time=0|buff.fel_domination.up)
+actions.pet+=/demonic_sacrifice,if=settings.demonic_sacrifice&!talent.soul_link.enabled&pet.alive&buff.sacrificed.down
+actions.pet+=/soul_link,if=pet.alive&buff.soul_link.down
+
+actions.defensive+=/death_coil,if=health.pct<settings.drain_life_health
+actions.defensive+=/drain_life,if=health.pct<settings.drain_life_health
+
+actions.aoe+=/hellfire,if=settings.aoe_hellfire&target.distance<10&health.pct>50
+actions.aoe+=/rain_of_fire,if=settings.aoe_rain_of_fire
+
+## Curse: one per warlock per target.  Utility curses are refreshed shortly before they expire.
+actions.curse+=/amplify_curse,if=curse_agony&debuff.curse_of_agony.down&target.time_to_die>10
+actions.curse+=/curse_of_doom,if=curse_doom&debuff.curse_of_doom.down&target.time_to_die>65
+actions.curse+=/curse_of_agony,if=(curse_agony|curse_doom&target.time_to_die<=65)&debuff.curse_of_agony.down&debuff.curse_of_doom.down&target.time_to_die>10
+actions.curse+=/curse_of_shadow,if=curse_shadow&debuff.curse_of_shadow.remains<5
+actions.curse+=/curse_of_the_elements,if=curse_elements&debuff.curse_of_the_elements.remains<5
+actions.curse+=/curse_of_recklessness,if=curse_recklessness&debuff.curse_of_recklessness.remains<5
+actions.curse+=/curse_of_weakness,if=curse_weakness&debuff.curse_of_weakness.remains<5
+actions.curse+=/curse_of_tongues,if=curse_tongues&debuff.curse_of_tongues.remains<3
+
+## Mana: Dark Pact (demon's mana) before Life Tap; wand when out of mana and too low on health to tap.
+actions.regen+=/dark_pact,if=mana.pct<settings.life_tap_mana_pct
+actions.regen+=/life_tap,if=mana.pct<settings.life_tap_mana_pct&health.pct>settings.life_tap_health_pct
+actions.regen+=/shoot,if=mana.pct<settings.wand_mana_pct

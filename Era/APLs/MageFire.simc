@@ -1,0 +1,55 @@
+## Fire Mage (Classic Era 1.15)
+## Sources: Classic Era mage guides (Wowhead Classic Fire Mage DPS guide, Warcraft Tavern / wowtbc.gg Classic mage guides,
+## the Classic mage Discord's raid notes): build and keep 5 Improved Scorch stacks, Fireball, Fire Blast when mana allows,
+## Combustion on cooldown, Pyroblast only as an opener.
+## Scorch stacks, the Pyroblast opener, Fire Blast's mana threshold, mana gems, Evocation and the wand are Mage settings.
+
+actions.precombat+=/arcane_intellect,if=buff.arcane_intellect.down&buff.arcane_brilliance.down
+actions.precombat+=/mage_armor,if=armor_choice=1&buff.mage_armor.down
+actions.precombat+=/ice_armor,if=armor_choice=2&buff.ice_armor.down
+actions.precombat+=/frost_armor,if=armor_choice=3&buff.frost_armor.down
+actions.precombat+=/conjure_mana_ruby,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_citrine,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_jade,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_agate,if=settings.conjure_gems
+actions.precombat+=/ice_barrier,if=buff.ice_barrier.down
+## Opener: Pyroblast from out of combat (setting "Pyroblast Opener").
+actions.precombat+=/pyroblast,if=settings.pyroblast_opener
+
+actions+=/counterspell
+actions+=/call_action_list,name=mana_mgmt
+actions+=/ice_block,if=health.pct<15&time>0
+actions+=/ice_barrier,if=buff.ice_barrier.down&time>0
+## Wanding for mana: keep shooting (only Frost Nova a mob that reaches you).
+actions+=/run_action_list,name=wanding,if=wanding
+actions+=/call_action_list,name=cooldowns,if=time>0
+actions+=/pyroblast,if=settings.pyroblast_opener&(time=0|buff.presence_of_mind.up)
+actions+=/run_action_list,name=aoe,if=active_enemies>=3
+## Improved Scorch: build to 5 stacks, refresh before a Fireball would let it drop.
+actions+=/scorch,if=scorch_wanted&!moving&target.time_to_die>10&(debuff.fire_vulnerability.stack<5|debuff.fire_vulnerability.remains<action.fireball.cast_time+action.scorch.cast_time+0.5)
+actions+=/fire_blast,if=moving|mana.pct>=settings.fire_blast_mana_pct
+actions+=/fireball
+actions+=/scorch,if=!action.fireball.known
+
+## Mana: gem, Evocation, then the wand.
+actions.mana_mgmt+=/mana_gem,if=time>0&mana.pct<=settings.mana_gem_pct&mana.deficit>=mana_gem_value
+actions.mana_mgmt+=/evocation,if=time>0&!moving&mana.pct<=settings.evocation_pct
+actions.mana_mgmt+=/shoot,if=time>0&settings.wand_mana_pct>0&(wand_mana|mana.current<action.fireball.cost)
+
+actions.cooldowns+=/combustion
+actions.cooldowns+=/arcane_power
+actions.cooldowns+=/presence_of_mind
+actions.cooldowns+=/berserking
+actions.cooldowns+=/use_items
+
+## AoE: Blast Wave and Arcane Explosion with the pack on you, Flamestrike (6+, or 3+ with Improved Flamestrike) and Blizzard at range.
+actions.aoe+=/blast_wave,if=target.distance<=10
+actions.aoe+=/frost_nova,if=settings.aoe_frost_nova&target.distance<=10&debuff.frozen.down&cooldown.blast_wave.remains>0
+actions.aoe+=/arcane_explosion,if=target.distance<=10&debuff.frozen.down
+actions.aoe+=/fire_blast,if=moving
+actions.aoe+=/flamestrike,if=!moving&action.flamestrike.time_since>8&(active_enemies>=6|talent.improved_flamestrike.rank=3)
+actions.aoe+=/blizzard
+actions.aoe+=/flamestrike,if=!moving
+actions.aoe+=/fireball
+
+actions.wanding+=/frost_nova,if=target.distance<=10&debuff.frozen.down

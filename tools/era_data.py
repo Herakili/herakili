@@ -84,12 +84,17 @@ INVTYPES = {1: "INVTYPE_HEAD", 2: "INVTYPE_NECK", 3: "INVTYPE_SHOULDER", 4: "INV
             20: "INVTYPE_ROBE", 21: "INVTYPE_WEAPONMAINHAND", 22: "INVTYPE_WEAPONOFFHAND", 23: "INVTYPE_HOLDABLE",
             24: "INVTYPE_AMMO", 25: "INVTYPE_THROWN", 26: "INVTYPE_RANGEDRIGHT", 28: "INVTYPE_RELIC"}
 equip = {}
+weapons = {}
 if os.path.exists(os.path.join(DB, "Item.csv")):
     for r in rows("Item"):
         t = INVTYPES.get(int(r["InventoryType"] or 0))
         if t and int(r["ID"]) in items:
             equip[int(r["ID"])] = t
+        # Weapons (class 2): GetItemInfoInstant's classID / subclassID, e.g. 15 = dagger.
+        if int(r["ClassID"] or 0) == 2 and int(r["ID"]) in items:
+            weapons[int(r["ID"])] = int(r["SubclassID"] or 0)
 out.append("equipLoc = {" + ",".join(f"[{i}]={lua_str(t)}" for i, t in sorted(equip.items())) + "},")
+out.append("weaponSubclass = {" + ",".join(f"[{i}]={c}" for i, c in sorted(weapons.items())) + "},")
 
 out.append("strings = {")
 for k in sorted(strings):
@@ -166,6 +171,9 @@ for class_id, lines in CLASS_SKILL_LINES.items():
     older = {}
     class_spells = []
     for r in sla:
+        # AcquireMethod 3 marks Season of Discovery copies (e.g. Fire Blast 400616) that Era characters never learn.
+        if r["AcquireMethod"] == "3":
+            continue
         if int(r["SkillLine"]) in lines and (int(r["ClassMask"] or 0) in (0,) or int(r["ClassMask"]) & mask):
             s = int(r["Spell"])
             class_spells.append(s)

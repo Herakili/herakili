@@ -1,0 +1,50 @@
+## Enhancement Shaman (Classic Era 1.15, no runes)
+## Sources: Classic Era Enhancement guides (Warcraft Tavern, Wowhead Classic Enhancement Shaman DPS rotation), the Classic Era
+## shaman Discord's public raid guides.  Stormstrike on cooldown, shock into the Stormstrike debuff, keep imbue / Lightning Shield /
+## totems up.  Imbue, shock, totem and mana choices are in the Shaman settings.
+
+actions.precombat+=/call_action_list,name=imbue,if=time=0
+actions.precombat+=/lightning_shield,if=settings.lightning_shield&buff.lightning_shield.down
+actions.precombat+=/call_action_list,name=totems,if=settings.totems_precombat
+## Leveling: pull with Lightning Bolt when the target is out of melee range.
+actions.precombat+=/lightning_bolt,if=settings.enh_lb_pull&!raid&target.outside8
+
+## In combat the imbue is only recast when the weapon has no temporary enchant at all.
+actions+=/call_action_list,name=imbue,if=buff.mh_temporary_enchant.down
+actions+=/lightning_shield,if=settings.lightning_shield&buff.lightning_shield.down
+actions+=/call_action_list,name=totems,if=time>0|settings.totems_precombat
+actions+=/blood_fury
+actions+=/berserking
+actions+=/stormstrike
+## Shock when Stormstrike's debuff is up, or when the shock will be ready again before Stormstrike is.
+actions+=/variable,name=shock_ok,value=mana.pct>=settings.enh_shock_mana&(!talent.stormstrike.enabled|debuff.stormstrike.up|cooldown.stormstrike.remains>6)
+actions+=/earth_shock,if=enh_use_earth_shock&variable.shock_ok
+actions+=/frost_shock,if=enh_use_frost_shock&variable.shock_ok
+actions+=/flame_shock,if=enh_use_flame_shock&mana.pct>=settings.enh_shock_mana&debuff.flame_shock.remains<1&target.time_to_die>6
+
+actions.imbue+=/windfury_weapon,if=enh_use_windfury_weapon&(buff.mh_windfury.down|time=0&buff.mh_windfury.remains<settings.imbue_refresh)
+actions.imbue+=/flametongue_weapon,if=enh_use_flametongue_weapon&(buff.mh_flametongue.down|time=0&buff.mh_flametongue.remains<settings.imbue_refresh)
+actions.imbue+=/rockbiter_weapon,if=enh_use_rockbiter_weapon&(buff.mh_rockbiter.down|time=0&buff.mh_rockbiter.remains<settings.imbue_refresh)
+actions.imbue+=/frostbrand_weapon,if=enh_use_frostbrand_weapon&(buff.mh_frostbrand.down|time=0&buff.mh_frostbrand.remains<settings.imbue_refresh)
+
+## Totems: one per element, chosen in the settings (skipped until learned).
+actions.totems+=/windfury_totem,if=enh_use_windfury_totem&buff.windfury_totem.remains<3
+actions.totems+=/grace_of_air_totem,if=enh_use_grace_of_air_totem&buff.grace_of_air_totem.remains<3
+actions.totems+=/tranquil_air_totem,if=enh_use_tranquil_air_totem&buff.tranquil_air_totem.remains<3
+actions.totems+=/nature_resistance_totem,if=enh_use_nature_resistance_totem&buff.nature_resistance_totem.remains<3
+actions.totems+=/windwall_totem,if=enh_use_windwall_totem&buff.windwall_totem.remains<3
+actions.totems+=/strength_of_earth_totem,if=enh_use_strength_of_earth_totem&buff.strength_of_earth_totem.remains<3
+actions.totems+=/stoneskin_totem,if=enh_use_stoneskin_totem&buff.stoneskin_totem.remains<3
+actions.totems+=/tremor_totem,if=enh_use_tremor_totem&buff.tremor_totem.remains<3
+actions.totems+=/mana_spring_totem,if=enh_use_mana_spring_totem&buff.mana_spring_totem.remains<3
+actions.totems+=/healing_stream_totem,if=enh_use_healing_stream_totem&buff.healing_stream_totem.remains<3
+actions.totems+=/fire_resistance_totem,if=enh_use_fire_resistance_totem&buff.fire_resistance_totem.remains<3
+actions.totems+=/poison_cleansing_totem,if=enh_use_poison_cleansing_totem&buff.poison_cleansing_totem.remains<3
+actions.totems+=/disease_cleansing_totem,if=enh_use_disease_cleansing_totem&buff.disease_cleansing_totem.remains<3
+## AoE (3+ enemies): Fire Nova Totem, then Magma Totem once the Nova has gone off.
+actions.totems+=/fire_nova_totem,if=settings.aoe_totems&active_enemies>2&time>0&buff.fire_nova_totem.down&buff.magma_totem.remains<2
+actions.totems+=/magma_totem,if=settings.aoe_totems&active_enemies>2&time>0&buff.fire_nova_totem.down&buff.magma_totem.down
+actions.totems+=/variable,name=st_fire,value=!settings.aoe_totems|active_enemies<3
+actions.totems+=/searing_totem,if=enh_use_searing_totem&variable.st_fire&time>0&buff.fire_totem.down&target.time_to_die>=settings.searing_ttd
+actions.totems+=/flametongue_totem,if=enh_use_flametongue_totem&variable.st_fire&buff.flametongue_totem.remains<3&buff.magma_totem.down&buff.fire_nova_totem.down
+actions.totems+=/frost_resistance_totem,if=enh_use_frost_resistance_totem&variable.st_fire&buff.frost_resistance_totem.remains<3&buff.magma_totem.down&buff.fire_nova_totem.down

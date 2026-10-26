@@ -282,12 +282,19 @@ local function ItemID( x )
     if type( x ) == "string" then return tonumber( x ) or tonumber( x:match( "item:(%d+)" ) or "" ) end
 end
 
+-- classID, subclassID: weapons (class 2) from the client's Item table, everything else Miscellaneous (15, 0).
+local function ItemClass( id )
+    local sub = DATA.weaponSubclass and DATA.weaponSubclass[ id ]
+    if sub then return 2, sub end
+    return 15, 0
+end
+
 local function GetItemInfo( x )
     local id = ItemID( x )
     local name = id and DATA.items[ id ]
     if not name then return nil end
     return name, "|cffffffff|Hitem:" .. id .. "|h[" .. name .. "]|h|r", 1, 1, 1, "Miscellaneous", "Junk", 20,
-        ( DATA.equipLoc and DATA.equipLoc[ id ] ) or "", 134400, 0, 15, 0
+        ( DATA.equipLoc and DATA.equipLoc[ id ] ) or "", 134400, 0, ItemClass( id )
 end
 
 -- Item mixin: a port of Blizzard_ObjectAPI/Classic/Item.lua (1.15.9).  On the live client
@@ -296,7 +303,7 @@ end
 -- callback table with nil.  The harness models the worst case: DoesItemExistByID is true for any positive ID.
 local function ItemInfoInstant( x )
     local id = ItemID( x )
-    if id and DATA.items[ id ] then return id, "Miscellaneous", "Junk", "", 134400, 15, 0 end
+    if id and DATA.items[ id ] then return id, "Miscellaneous", "Junk", ( DATA.equipLoc and DATA.equipLoc[ id ] ) or "", 134400, ItemClass( id ) end
 end
 local function DoesItemExistByID( x ) local id = ItemID( x ); return id ~= nil and id > 0 end
 
@@ -667,7 +674,7 @@ local api = {
     GetItemCooldown = function() return 0, 0, 1 end,
     IsUsableItem = function() return false end,
     IsEquippedItem = function( x ) local id = ItemID( x ); for _, e in pairs( W.equip ) do if e == id then return true end end return false end,
-    HasWandEquipped = function() return W.equip[ 18 ] ~= nil and DATA.equipLoc ~= nil and DATA.equipLoc[ W.equip[ 18 ] ] == "INVTYPE_RANGEDRIGHT" end,
+    HasWandEquipped = function() local r = W.equip[ 18 ]; return r ~= nil and DATA.weaponSubclass ~= nil and DATA.weaponSubclass[ r ] == 19 end, -- 19 = wand
     IsEquippedItemType = function( t )
         local wanted = { Shields = "INVTYPE_SHIELD" }
         for _, e in pairs( W.equip ) do if DATA.equipLoc and DATA.equipLoc[ e ] == wanted[ t ] then return true end end
@@ -1105,12 +1112,23 @@ local function Recs( display )
     return #out > 0 and table.concat( out, " > " ) or "(nothing)"
 end
 
+-- Callbacks a scenario scheduled with H.At( seconds, fn ), run when the scenario clock reaches them.
+local scheduled = {}
+
 local function Tick( n, debugLast )
     local engine = Hekili.Engine
     for i = 1, n do
         -- Hekili logs one update and then turns debugging off; for HARNESS_DEBUG, log one near the end.
         if debugLast and i == n - 10 then Hekili.ActiveDebug = true end
         W.time = W.time + 0.1
+        for j = #scheduled, 1, -1 do
+            local s = scheduled[ j ]
+            if s.at <= W.time + 1e-6 then
+                table.remove( scheduled, j )
+                local ok, err = pcall( s.fn )
+                if not ok then Report( "scheduled scenario event", err ) end
+            end
+        end
         Hekili.freshFrame = true
         for _, f in ipairs( frames ) do
             local onUpdate = f.__scripts.OnUpdate
@@ -1154,6 +1172,10 @@ H.Pet = function( name, family )
     W.pet = { guid = "Pet-0-1-1-1-1-0000000099", name = name or "Pet", family = family, health = 2000, healthMax = 2000, friendly = true }
     Fire( "UNIT_PET", "player" )
 end
+-- Run fn `seconds` into the scenario (it runs 4 s), e.g. an Auto Shot right before the display's last update.
+H.At = function( seconds, fn )
+    scheduled[ #scheduled + 1 ] = { at = W.time + seconds, fn = fn }
+end
 
 -- A class setting for this scenario only: H.Setting( "tank_mode", "always" ).  Restored before the next scenario.
 local changedSettings = {}
@@ -1169,6 +1191,7 @@ local function ResetWorld()
     local specDB = Hekili.DB.profile.specs[ classID ]
     for key, old in pairs( changedSettings ) do specDB.settings[ key ] = old[ 1 ] end
     changedSettings = {}
+    scheduled = {}
     W.groupSize, W.inCombat, W.target, W.plates, W.buffs, W.debuffs = 0, false, nil, {}, {}, {}
     W.casting, W.autoRepeat, W.gcdStart, W.cooldowns, W.aggro = nil, false, nil, {}, false
     W.speed = 0

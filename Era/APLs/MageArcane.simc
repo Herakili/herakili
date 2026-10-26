@@ -1,0 +1,52 @@
+## Arcane Mage (Classic Era 1.15)
+## Sources: Classic Era mage guides (Wowhead Classic mage DPS / talent guides for AP/Frost and AP/Fire builds, Warcraft
+## Tavern / wowtbc.gg Classic mage guides): Arcane Power and Presence of Mind with the main nuke, Clearcasting on Arcane
+## Missiles, Arcane Explosion when the pack is on you.
+## The main nuke (Frostbolt / Fireball), Clearcasting use, mana gems, Evocation and the wand are Mage settings.
+
+actions.precombat+=/arcane_intellect,if=buff.arcane_intellect.down&buff.arcane_brilliance.down
+actions.precombat+=/mage_armor,if=armor_choice=1&buff.mage_armor.down
+actions.precombat+=/ice_armor,if=armor_choice=2&buff.ice_armor.down
+actions.precombat+=/frost_armor,if=armor_choice=3&buff.frost_armor.down
+actions.precombat+=/conjure_mana_ruby,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_citrine,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_jade,if=settings.conjure_gems
+actions.precombat+=/conjure_mana_agate,if=settings.conjure_gems
+actions.precombat+=/ice_barrier,if=buff.ice_barrier.down
+
+actions+=/counterspell
+actions+=/call_action_list,name=mana_mgmt
+actions+=/ice_block,if=health.pct<15&time>0
+actions+=/ice_barrier,if=buff.ice_barrier.down&time>0
+## Wanding for mana: keep shooting (only Frost Nova a mob that reaches you).
+actions+=/run_action_list,name=wanding,if=wanding
+actions+=/call_action_list,name=cooldowns,if=time>0
+actions+=/run_action_list,name=aoe,if=active_enemies>=3
+actions+=/arcane_missiles,if=settings.clearcasting_missiles&buff.clearcasting.up&!moving
+actions+=/fire_blast,if=moving
+actions+=/frostbolt,if=nuke_frostbolt
+actions+=/fireball
+actions+=/frostbolt
+
+## Mana: gem, Evocation, then the wand.
+actions.mana_mgmt+=/mana_gem,if=time>0&mana.pct<=settings.mana_gem_pct&mana.deficit>=mana_gem_value
+actions.mana_mgmt+=/evocation,if=time>0&!moving&mana.pct<=settings.evocation_pct&buff.arcane_power.down
+actions.mana_mgmt+=/shoot,if=time>0&settings.wand_mana_pct>0&(wand_mana|mana.current<action.frostbolt.cost&mana.current<action.fireball.cost)
+
+## Arcane Power and Presence of Mind: line them up (Presence of Mind during Arcane Power, or alone when Arcane Power is far off).
+actions.cooldowns+=/arcane_power
+actions.cooldowns+=/presence_of_mind,if=buff.arcane_power.up|!talent.arcane_power.enabled|cooldown.arcane_power.remains>30
+actions.cooldowns+=/berserking,if=buff.arcane_power.up|!talent.arcane_power.enabled|cooldown.arcane_power.remains>30
+actions.cooldowns+=/use_items
+
+## AoE: Arcane Explosion with the pack on you (Frost Nova first if enabled), Blizzard / Flamestrike at range.
+actions.aoe+=/frost_nova,if=settings.aoe_frost_nova&target.distance<=10&debuff.frozen.down&active_enemies>=6
+actions.aoe+=/arcane_explosion,if=target.distance<=10&debuff.frozen.down
+actions.aoe+=/cone_of_cold,if=target.distance<=10&debuff.frozen.down
+actions.aoe+=/fire_blast,if=moving
+actions.aoe+=/flamestrike,if=!moving&active_enemies>=6&action.flamestrike.time_since>8
+actions.aoe+=/blizzard
+actions.aoe+=/frostbolt,if=nuke_frostbolt
+actions.aoe+=/fireball
+
+actions.wanding+=/frost_nova,if=target.distance<=10&debuff.frozen.down

@@ -1,0 +1,43 @@
+## Subtlety Rogue (Classic Era 1.15)
+## Sources: Classic Era rogue guides (Warcraft Tavern / wowtbc.gg Classic Combat Rogue, Wowhead Classic Rogue DPS),
+## the Classic rogue sim defaults (Hemorrhage builds, Slice and Dice uptime first, 5-point Eviscerate; Premeditation openers).
+## Energy ticks every 2 s (20 energy); the engine waits for the tick that pays for the next ability.
+## Rupture, Expose Armor, the opener, the Eviscerate threshold and positioning are controlled in the Rogue settings.
+
+actions.precombat+=/stealth
+
+actions+=/kick
+actions+=/run_action_list,name=stealthed,if=stealthed.rogue
+actions+=/riposte,use_off_gcd=1
+actions+=/call_action_list,name=cds
+actions+=/call_action_list,name=finish,if=combo_points.current>0
+actions+=/call_action_list,name=build
+
+## Stealth openers (setting "Stealth Opener").
+actions.stealthed+=/premeditation,use_off_gcd=1,if=opener_enabled&combo_points.current<=3
+actions.stealthed+=/ambush,if=opener_ambush
+actions.stealthed+=/cheap_shot,if=opener_cheap_shot
+actions.stealthed+=/garrote,if=opener_garrote
+actions.stealthed+=/call_action_list,name=build
+
+## Cooldowns (talent-gated): with Slice and Dice up.  Adrenaline Rush when its extra energy won't be capped.
+actions.cds+=/blade_flurry,if=buff.slice_and_dice.up&(active_enemies>1|settings.blade_flurry_single)
+actions.cds+=/adrenaline_rush,if=buff.slice_and_dice.up&energy.current<=60&target.time_to_die>10
+actions.cds+=/blood_fury,if=buff.slice_and_dice.up
+actions.cds+=/berserking,if=buff.slice_and_dice.up
+actions.cds+=/use_items,if=buff.slice_and_dice.up
+actions.cds+=/thistle_tea,use_off_gcd=1,if=energy.current<=10&time>0
+
+## Finishers.  Slice and Dice first: open with it at any combo points, refresh it (pooling energy) before it drops.
+actions.finish+=/slice_and_dice,if=!buff.slice_and_dice.up&target.time_to_die>6
+actions.finish+=/pool_resource,for_next=1
+actions.finish+=/slice_and_dice,if=buff.slice_and_dice.remains<settings.snd_refresh&target.time_to_die>buff.slice_and_dice.remains+4
+actions.finish+=/expose_armor,if=expose_wanted&combo_points.current>=5&debuff.expose_armor.remains<3&target.time_to_die>10
+actions.finish+=/rupture,if=rupture_wanted&combo_points.current>=5&!debuff.rupture.up&target.time_to_die>16
+actions.finish+=/cold_blood,use_off_gcd=1,if=combo_points.current>=finish_cp&energy.current>=action.eviscerate.cost
+actions.finish+=/eviscerate,if=combo_points.current>=finish_cp|target.time_to_die<3
+
+## Builders: Hemorrhage (talent), otherwise Backstab with a dagger from behind (wait for it rather than Sinister Strike), otherwise Sinister Strike.
+actions.build+=/hemorrhage,if=combo_points.current<5
+actions.build+=/backstab,if=combo_points.current<5
+actions.build+=/sinister_strike,if=combo_points.current<5&(!mainhand_dagger|!behind_target|!action.backstab.known)

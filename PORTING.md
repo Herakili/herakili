@@ -50,6 +50,16 @@ right before editing (other ports edit in parallel), and list every such change 
 - Combat log hooks: `spec:RegisterCombatLogEvent( function( _, subtype, _, sourceGUID, _, _, _, destGUID, _, _, _, ... ) end )`;
   for `SWING_MISSED` the miss type is the first `...` value, for `SPELL_*` suffixes it's after spellID, name, school.
 - Pseudo-auras (no `id`) are fine for things the engine predicts itself (queued Heroic Strike, Overpower window).
+- On Era a class module's definitions take precedence over the shared ones in `Classes.lua` (the module is loaded
+  first; see `Hekili:SpecializationChanged`).  Shared Wrath-ID racials/potions can be overridden with Era IDs.
+- Reserved names: a state expression called `soul_shards` won't compile (it's treated as the retail resource), and an
+  action list called `mana` silently never runs.  Use other names (`shard_count`, `regen`).
+- `solo` / `group` / `raid` come from `GetNumGroupMembers()` (which counts the player); `solo` is true at 0 or 1.
+- Costs: read live costs with `GetSpellPowerCost` (pattern in `Era/Paladin.lua`); fallback tables must come from
+  `tools/.era-api/db2/SpellPower.csv`, never from memory (percent costs are of base mana).
+- Wands: `Shoot` (5019) comes from the Wands skill, not a class line; check `HasWandEquipped()`, and never recommend
+  Shoot while it is already active (pressing it again stops the wand).
+- Things Hekili can't see (being behind the target, ranged pack size beyond nameplate range) belong in settings.
 - Ranks learned later must not be assumed: the priority must work at every level (abilities you don't know are simply
   skipped; make sure a low-level character still gets a sensible priority).
 

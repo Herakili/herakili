@@ -28,16 +28,26 @@ local GetItemCooldown = _G.C_Container.GetItemCooldown
 
 local GetPlayerAuraBySpellID = ns.GetPlayerAuraBySpellID
 
--- Items from other expansions (e.g. Wrath potions on Classic Era) don't exist on every client, and the
--- 1.15.8+ Item mixin errors in ContinueOnItemLoad for them.  Only return items the client knows.
+-- Items from other expansions (e.g. Wrath potions on Classic Era) don't exist on every client.  The 1.15.8+ Item
+-- mixin keys ContinueOnItemLoad's callbacks by GetItemInfoInstant( id ), and C_Item.DoesItemExistByID can be true
+-- for an ID that GetItemInfoInstant doesn't know, so it errors with "table index is nil".  Only return items the
+-- client can actually resolve.
 local DoesItemExistByID = C_Item and C_Item.DoesItemExistByID
+local GetItemInfoInstant = ( C_Item and C_Item.GetItemInfoInstant ) or _G.GetItemInfoInstant
 
 local function LoadableItem( itemID )
-    if not itemID then return end
+    if type( itemID ) ~= "number" then return end
     if DoesItemExistByID and not DoesItemExistByID( itemID ) then return end
+    if GetItemInfoInstant and not GetItemInfoInstant( itemID ) then return end
 
     local item = Item:CreateFromItemID( itemID )
-    if not item:IsItemEmpty() then return item end
+    if not item:IsItemEmpty() and item:GetItemID() then return item end
+end
+
+-- ContinueOnItemLoad that can't abort the caller (a failure here used to stop Classes.lua from loading).
+local function ContinueOnItemLoad( item, func )
+    local ok, err = pcall( item.ContinueOnItemLoad, item, func )
+    if not ok and Hekili.Error then Hekili:Error( "Item load failed: " .. tostring( err ) ) end
 end
 
 local GetSpellDescription, GetSpellTexture = _G.GetSpellDescription, _G.GetSpellTexture
@@ -495,7 +505,7 @@ local HekiliSpecMixin = {
         local potionItem = LoadableItem( data.item )
 
         if potionItem then
-            potionItem:ContinueOnItemLoad( function()
+            ContinueOnItemLoad( potionItem, function()
                 if not data.name then data.name = potionItem:GetItemName() end
                 if not data.link then data.link = potionItem:GetItemLink() end
 
@@ -646,7 +656,7 @@ local HekiliSpecMixin = {
                 local actionItem = LoadableItem( item )
                 if actionItem then
                     local itempcall = function()
-                        actionItem:ContinueOnItemLoad( function( success )
+                        ContinueOnItemLoad( actionItem, function( success )
                             --[[if not success then
                                 Hekili:Error( "Unable to load " .. item .. " (" .. ability .. ")." )
 
@@ -746,7 +756,7 @@ local HekiliSpecMixin = {
                                         local copyItem = LoadableItem( id )
 
                                         if copyItem then
-                                            copyItem:ContinueOnItemLoad( function()
+                                            ContinueOnItemLoad( copyItem, function()
                                                 local name = copyItem:GetItemName()
                                                 local link = copyItem:GetItemLink()
                                                 local texture = copyItem:GetItemIcon()

@@ -252,17 +252,36 @@ local function GetItemInfo( x )
     return name, "|cffffffff|Hitem:" .. id .. "|h[" .. name .. "]|h|r", 1, 1, 1, "Miscellaneous", "Junk", 20, "", 134400, 0, 15, 0
 end
 
+-- Item mixin: a port of Blizzard_ObjectAPI/Classic/Item.lua (1.15.9).  On the live client
+-- C_Item.DoesItemExistByID can be true for an ID that GetItemInfoInstant doesn't know (seen with Wrath potion
+-- IDs), so ItemMixin:IsItemEmpty() is false while GetItemID() is nil, and ContinueOnItemLoad then indexes its
+-- callback table with nil.  The harness models the worst case: DoesItemExistByID is true for any positive ID.
+local function ItemInfoInstant( x )
+    local id = ItemID( x )
+    if id and DATA.items[ id ] then return id, "Miscellaneous", "Junk", "", 134400, 15, 0 end
+end
+local function DoesItemExistByID( x ) local id = ItemID( x ); return id ~= nil and id > 0 end
+
 local ItemMT = { __index = {} }
 local ItemMethods = ItemMT.__index
-function ItemMethods:IsItemEmpty() return self.itemID == nil end
-function ItemMethods:GetItemID() return self.itemID end
+function ItemMethods:GetStaticBackingItem() return self.itemLink or self.itemID end
+function ItemMethods:IsItemEmpty()
+    if self:GetStaticBackingItem() then return not DoesItemExistByID( self:GetStaticBackingItem() ) end
+    return true
+end
+function ItemMethods:GetItemID()
+    if self:GetStaticBackingItem() then return ( ItemInfoInstant( self:GetStaticBackingItem() ) ) end
+end
 function ItemMethods:IsItemDataCached() return true end
-function ItemMethods:GetItemName() return DATA.items[ self.itemID ] end
+function ItemMethods:GetItemName() return DATA.items[ self:GetItemID() or 0 ] end
 function ItemMethods:GetItemLink() return select( 2, GetItemInfo( self.itemID ) ) end
-function ItemMethods:GetItemIcon() return 134400 end
+function ItemMethods:GetItemIcon() return self:GetItemID() and 134400 or nil end
+local itemCallbacks = {}
 function ItemMethods:ContinueOnItemLoad( cb )
-    -- The 1.15.8+ client indexes its callback table by the item's ID, which is nil for unknown items.
-    if not DATA.items[ self.itemID ] then error( "Interface/AddOns/Blizzard_ObjectAPI/Classic/Item.lua:320: table index is nil", 2 ) end
+    if type( cb ) ~= "function" or self:IsItemEmpty() then error( "Usage: NonEmptyItem:ContinueOnLoad(callbackFunction)", 2 ) end
+    local id = self:GetItemID()
+    if id == nil then error( "Interface/AddOns/Blizzard_ObjectAPI/Classic/Item.lua:320: table index is nil", 2 ) end
+    itemCallbacks[ id ] = itemCallbacks[ id ] or {}
     cb( true )
 end
 ItemMethods.ContinueWithCancelOnItemLoad = function( self, cb ) self:ContinueOnItemLoad( cb ); return function() end end
@@ -564,7 +583,7 @@ local api = {
 
     -- Items.
     GetItemInfo = GetItemInfo,
-    GetItemInfoInstant = function( x ) local id = ItemID( x ); if id and DATA.items[ id ] then return id, "Miscellaneous", "Junk", "", 134400, 15, 0 end end,
+    GetItemInfoInstant = ItemInfoInstant,
     GetItemCount = function() return 0 end, GetItemSpell = function() return nil end, GetItemIcon = function( x ) return DATA.items[ ItemID( x ) or 0 ] and 134400 or nil end,
     GetItemCooldown = function() return 0, 0, 1 end,
     IsUsableItem = function() return false end, IsEquippedItem = function() return false end, IsEquippedItemType = function() return false end,
@@ -623,7 +642,7 @@ api.C_Timer = Namespace( "C_Timer", {
 } )
 api.C_EventUtils = Namespace( "C_EventUtils", { IsEventValid = function( e ) return DATA.events[ e ] == true end } )
 api.C_Item = Namespace( "C_Item", {
-    DoesItemExistByID = function( id ) return DATA.items[ ItemID( id ) or 0 ] ~= nil end,
+    DoesItemExistByID = DoesItemExistByID,
     GetItemInfo = GetItemInfo,
     GetItemInfoInstant = api.GetItemInfoInstant,
     GetItemNameByID = function( id ) return DATA.items[ id ] end,

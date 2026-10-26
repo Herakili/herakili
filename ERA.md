@@ -20,8 +20,10 @@ and `tools/era_talents.py <classID>` prints the class's exact Era talent table.
   `GetPlayerAuraBySpellID` rebuilt from `C_UnitAuras`; spec group via `C_SpecializationInfo`; tolerant combat-rating
   lookups; talent points per tree via `C_SpecializationInfo.GetSpecializationInfo` (Era/Classes.lua).
 - Events the client doesn't have are never registered (`ns.IsEventValid`, e.g. `LEARNED_SPELL_IN_TAB`).
-- Items that don't exist on the client (e.g. the shared Wrath potion list) are skipped instead of erroring in
-  `Item:ContinueOnItemLoad`, which used to abort `Classes.lua` and cascade into hundreds of "nil" errors.
+- Items the client can't resolve (e.g. the shared Wrath potion list) are skipped instead of erroring in
+  `Item:ContinueOnItemLoad`, which used to abort `Classes.lua` and cascade into hundreds of "nil" errors.  Note that
+  `C_Item.DoesItemExistByID` can be true for such IDs on the live client; the check that matters is
+  `GetItemInfoInstant`, and every item load is wrapped so it can never stop the file from loading.
 - The GCD is tracked through the class module's `gcd` spell (Era has no spell 61304).
 - LibDualSpec is optional (it only loads on Era realms with dual spec); LibRangeCheck-3.0 (v38, Era-aware) replaces 2.0.
 - Combat log flags come from `Enum.CombatLogObject` (the `COMBATLOG_OBJECT_*` globals are deprecation fallbacks on Era).

@@ -3,9 +3,12 @@
 
 local addon, ns = ...
 local GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
-Hekili = LibStub("AceAddon-3.0"):NewAddon( "Hekili", "AceConsole-3.0", "AceSerializer-3.0" )
-Hekili.Version = GetAddOnMetadata( "Hekili", "Version" )
-Hekili.Flavor = GetAddOnMetadata( "Hekili", "X-Flavor" ) or "Retail"
+-- Herakili (the Classic Era build) keeps "Hekili" as its internal Lua identifier; other files find the addon
+-- table through _G[ addon ], where addon is the folder name ("Herakili" for the Era build).
+Hekili = LibStub("AceAddon-3.0"):NewAddon( "Herakili", "AceConsole-3.0", "AceSerializer-3.0" )
+_G[ addon ] = Hekili
+Hekili.Version = GetAddOnMetadata( addon, "Version" )
+Hekili.Flavor = GetAddOnMetadata( addon, "X-Flavor" ) or "Retail"
 
 local format = string.format
 local insert, concat = table.insert, table.concat

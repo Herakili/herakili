@@ -90,10 +90,10 @@ local function Mover_OnMouseUp(self, btn)
         Hekili:SaveCoordinates()
     elseif btn == "RightButton" then
         if obj:GetName() == "HekiliNotification" then
-            LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Hekili", "displays", "nPanel" )
+            LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Herakili", "displays", "nPanel" )
             return
         elseif obj and obj.id then
-            LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Hekili", "displays", obj.id )
+            LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Herakili", "displays", obj.id )
             return
         end
     end
@@ -194,7 +194,7 @@ function ns.StartConfiguration( external )
         if H.Config then
             GameTooltip:SetOwner( self, "ANCHOR_TOPRIGHT" )
 
-            GameTooltip:SetText( "Hekili: Notifications" )
+            GameTooltip:SetText( "Herakili: Notifications" )
             GameTooltip:AddLine( "Left-click and hold to move.", 1, 1, 1 )
             GameTooltip:AddLine( "Right-click to open Notification panel settings.", 1, 1, 1 )
             GameTooltip:Show()
@@ -274,7 +274,7 @@ function ns.StartConfiguration( external )
                 if H.Config then
                     GameTooltip:SetOwner( self, "ANCHOR_TOPRIGHT" )
 
-                    GameTooltip:SetText( "Hekili: " .. i )
+                    GameTooltip:SetText( "Herakili: " .. i )
                     GameTooltip:AddLine( "Left-click and hold to move.", 1, 1, 1 )
                     GameTooltip:AddLine( "Right-click to open " .. i .. " display settings.", 1, 1, 1 )
                     if not H:IsDisplayActive( i, true ) then GameTooltip:AddLine( "This display is not currently active.", 0.5, 0.5, 0.5 ) end
@@ -310,10 +310,10 @@ function ns.StartConfiguration( external )
         if not Hekili.OptionsReady then Hekili:RefreshOptions() end
 
         local ACD = LibStub( "AceConfigDialog-3.0" )
-        ACD:SetDefaultSize( "Hekili", 800, 608 )
-        ACD:Open( "Hekili" )
+        ACD:SetDefaultSize( "Herakili", 800, 608 )
+        ACD:Open( "Herakili" )
 
-        local oFrame = ACD.OpenFrames["Hekili"].frame
+        local oFrame = ACD.OpenFrames["Herakili"].frame
         --if not Hekili.IsDragonflight() then oFrame:SetMinResize( 800,608 ) end
 
         ns.OnHideFrame = ns.OnHideFrame or CreateFrame( "Frame" )
@@ -326,10 +326,10 @@ function ns.StartConfiguration( external )
         end )
 
         if not ns.OnHideFrame.firstTime then
-            ACD:SelectGroup( "Hekili", "packs" )
-            ACD:SelectGroup( "Hekili", "displays" )
-            ACD:SelectGroup( "Hekili", "displays", "Multi" )
-            ACD:SelectGroup( "Hekili", "general" )
+            ACD:SelectGroup( "Herakili", "packs" )
+            ACD:SelectGroup( "Herakili", "displays" )
+            ACD:SelectGroup( "Herakili", "displays", "Multi" )
+            ACD:SelectGroup( "Herakili", "general" )
             ns.OnHideFrame.firstTime = true
         end
 
@@ -413,7 +413,7 @@ do
     local menuData = {
         {
             isTitle = 1,
-            text = "Hekili",
+            text = "Herakili",
             notCheckable = 1,
         },
 
@@ -1155,10 +1155,10 @@ do
 
                             if conf.indicators.enabled and indicator then
                                 if indicator == "cycle" then
-                                    b.Icon:SetTexture("Interface\\Addons\\Hekili\\Textures\\Cycle")
+                                    b.Icon:SetTexture("Interface\\AddOns\\Herakili\\Textures\\Cycle")
                                 end
                                 if indicator == "cancel" then
-                                    b.Icon:SetTexture("Interface\\Addons\\Hekili\\Textures\\Cancel")
+                                    b.Icon:SetTexture("Interface\\AddOns\\Herakili\\Textures\\Cancel")
                                 end
                                 b.Icon:Show()
                             else
@@ -2692,7 +2692,7 @@ do
             -- Overlay (for Pause)
             b.Overlay = b.Overlay or b:CreateTexture( nil, "OVERLAY" )
             b.Overlay:SetAllPoints( b )
-            b.Overlay:SetTexture( "Interface/AddOns/Hekili/Textures/Pause.blp" )
+            b.Overlay:SetTexture( "Interface/AddOns/Herakili/Textures/Pause.blp" )
             b.Overlay:SetVertexColor( 1, 1, 1, 1 )
             -- b.Overlay:SetTexCoord( unpack( b.texCoords ) )
             b.Overlay:Hide()
@@ -2746,7 +2746,7 @@ do
                 GameTooltip:SetOwner( self, "ANCHOR_TOPRIGHT" )
                 GameTooltip:SetBackdropColor( 0, 0, 0, 0.8 )
 
-                GameTooltip:SetText( "Hekili: " .. dispID  )
+                GameTooltip:SetText( "Herakili: " .. dispID  )
                 GameTooltip:AddLine( "Left-click and hold to move.", 1, 1, 1 )
                 GameTooltip:Show()
                 self:SetMovable( true )

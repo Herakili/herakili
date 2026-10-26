@@ -1,7 +1,7 @@
 -- Offline test harness: runs the addon against a model of the Classic Era client.
 --
 -- Usage (from the repository root, after tools/fetch-era-api.sh and python3 tools/era_data.py):
---   luajit tools/harness.lua [Hekili_Vanilla.toc] [CLASS] [talent points, e.g. 17/34/0]
+--   luajit tools/harness.lua [Herakili_Vanilla.toc] [CLASS] [talent points, e.g. 17/34/0]
 -- Builds and combat scenarios per class live in tools/scenarios/<CLASS>.lua.
 --
 -- What is modelled faithfully, from the client's own data (tools/.era-api):
@@ -15,7 +15,7 @@
 -- combat scenarios (SCENARIOS) through the real recommendation engine, printing what the display shows.
 -- Exit code 1 if anything errored.
 
-local TOC = arg[ 1 ] or "Hekili_Vanilla.toc"
+local TOC = arg[ 1 ] or "Herakili_Vanilla.toc"
 local CLASS = arg[ 2 ] or "WARRIOR"
 local BUILD = arg[ 3 ]
 -- Character level (HARNESS_LEVEL); spells above it are unknown.  Use build 0/0/0 below level 10.
@@ -868,7 +868,8 @@ end } )
 
 -- Load the addon ---------------------------------------------------------------------------------------------
 
-local ADDON, ns = "Hekili", {}
+-- The addon (folder) name, as the client passes it to every file: the TOC name without the flavor suffix.
+local ADDON, ns = ( TOC:match( "([^/]+)%.toc$" ) or "Hekili" ):gsub( "_%a+$", "" ), {}
 local loaded = 0
 
 local function LoadLua( path )
@@ -919,7 +920,8 @@ do
     if sv then
         local chunk = assert( loadfile( sv ) )
         chunk()
-        print( "Loaded saved variables from " .. sv .. " (HekiliDB " .. ( rawget( _G, "HekiliDB" ) and "present" or "missing" ) .. ")" )
+        local svName = ( meta.SavedVariables or "HekiliDB" ):match( "^%s*([%w_]+)" )
+        print( "Loaded saved variables from " .. sv .. " (" .. svName .. " " .. ( rawget( _G, svName ) and "present" or "missing" ) .. ")" )
     end
 end
 

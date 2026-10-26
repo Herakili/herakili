@@ -5,7 +5,7 @@ Uses `luac5.1 -l` to list every GETGLOBAL per file and line, then removes names 
 libraries define themselves.  What's left is either a real problem or guarded (`_G.X or ...`, `if X then`),
 so each hit is printed with its source line for review.
 
-Usage: python3 tools/check_globals.py [Hekili_Vanilla.toc]     (run tools/fetch-era-api.sh first)
+Usage: python3 tools/check_globals.py [Herakili_Vanilla.toc]     (run tools/fetch-era-api.sh first)
 """
 import os
 import re
@@ -14,7 +14,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 API = os.path.join(ROOT, "tools", ".era-api")
-TOC = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else "Hekili_Vanilla.toc")
+TOC = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else "Herakili_Vanilla.toc")
 
 LUA_STD = set("""
 _G _VERSION assert collectgarbage coroutine debug error gcinfo getfenv getmetatable ipairs load loadstring math

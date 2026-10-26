@@ -1149,7 +1149,7 @@ spec:RegisterSetting( "hunter_description", nil, {
     type = "description",
     name = "Classic Era hunter priorities are built around Auto Shot: Aimed Shot and Multi-Shot are fit between shots, " ..
         "Arcane Shot is the mana-dependent filler, and the melee abilities are used only when the target is in melee range.  " ..
-        "Use a swing timer addon (e.g. an Auto Shot bar) alongside Hekili for exact timing.\n\n",
+        "Use a swing timer addon (e.g. an Auto Shot bar) alongside Herakili for exact timing.\n\n",
     width = "full",
 } )
 

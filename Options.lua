@@ -30,8 +30,8 @@ local LDBIcon = LibStub( "LibDBIcon-1.0", true )
 
 
 local NewFeature = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0|t"
-local GreenPlus = "Interface\\AddOns\\Hekili\\Textures\\GreenPlus"
-local RedX = "Interface\\AddOns\\Hekili\\Textures\\RedX"
+local GreenPlus = "Interface\\AddOns\\Herakili\\Textures\\GreenPlus"
+local RedX = "Interface\\AddOns\\Herakili\\Textures\\RedX"
 local BlizzBlue = "|cFF00B4FF"
 local ClassColor = Hekili.IsClassic() and RAID_CLASS_COLORS[ class.file ] or C_ClassColor.GetClassColor( class.file )
 
@@ -598,7 +598,7 @@ local packTemplate = {
     builtIn = false,
 
     author = UnitName("player"),
-    desc = "This is a package of action lists for Hekili.",
+    desc = "This is a package of action lists for Herakili.",
     source = "",
     date = tonumber( date("%Y%M%D.%H%M") ),
     warnings = "",
@@ -1450,7 +1450,7 @@ do
                 name = fancyName,
                 desc = data.desc,
                 order = 10 + pos,
-                func = function () ACD:SelectGroup( "Hekili", "displays", name ) end,
+                func = function () ACD:SelectGroup( "Herakili", "displays", name ) end,
             },
 
             [name] = {
@@ -2302,7 +2302,7 @@ do
                         type = "group",
                         name = "Border",
                         desc = "Enable/disable or set the color for icon borders.\n\n" ..
-                            "You may want to disable this if you use Masque or other tools to skin your Hekili icons.",
+                            "You may want to disable this if you use Masque or other tools to skin your Herakili icons.",
                         order = 4,
 
                         args = {
@@ -2583,8 +2583,8 @@ do
                                     ["Interface\\Cooldown\\star4"] = "Star (Default)",
                                     ["Interface\\Cooldown\\ping4"] = "Circle",
                                     ["Interface\\Cooldown\\starburst"] = "Starburst",
-                                    ["Interface\\AddOns\\Hekili\\Textures\\MonoCircle2"] = "Monochrome Circle Thin",
-                                    ["Interface\\AddOns\\Hekili\\Textures\\MonoCircle5"] = "Monochrome Circle Thick",
+                                    ["Interface\\AddOns\\Herakili\\Textures\\MonoCircle2"] = "Monochrome Circle Thin",
+                                    ["Interface\\AddOns\\Herakili\\Textures\\MonoCircle5"] = "Monochrome Circle Thick",
                                 },
                                 hidden = function () return SF == nil end,
                             },
@@ -2943,7 +2943,7 @@ do
             args = {
                 header = {
                     type = "description",
-                    name = "Hekili has up to five built-in displays (identified in blue) that can display " ..
+                    name = "Herakili has up to five built-in displays (identified in blue) that can display " ..
                         "different kinds of recommendations.  The addons recommendations are based upon the " ..
                         "Priorities that are generally (but not exclusively) based on SimulationCraft profiles " ..
                         "so that you can compare your performance to the results of your simulations.",
@@ -2971,7 +2971,7 @@ do
                     desc = "The Notification Panel provides brief updates when settings are changed or " ..
                         "toggled while in combat.",
                     func = function ()
-                        ACD:SelectGroup( "Hekili", "displays", "nPanel" )
+                        ACD:SelectGroup( "Herakili", "displays", "nPanel" )
                     end,
                     order = 951,
                 },
@@ -3189,7 +3189,7 @@ do
                     desc = "Your display styles can be shared with other addon users with these export strings.\n\n" ..
                         "You can also import a shared export string here.",
                     func = function ()
-                        ACD:SelectGroup( "Hekili", "displays", "shareDisplays" )
+                        ACD:SelectGroup( "Herakili", "displays", "shareDisplays" )
                     end,
                     order = 998,
                 },
@@ -4981,8 +4981,8 @@ do
         e.order = nToggles + 0.01
         e.width = 0.15
         e.image = function ()
-            if not config.expanded[ section ] then return "Interface\\AddOns\\Hekili\\Textures\\WhiteRight" end
-            return "Interface\\AddOns\\Hekili\\Textures\\WhiteDown"
+            if not config.expanded[ section ] then return "Interface\\AddOns\\Herakili\\Textures\\WhiteRight" end
+            return "Interface\\AddOns\\Herakili\\Textures\\WhiteDown"
         end
         e.imageWidth = 20
         e.imageHeight = 20
@@ -5111,7 +5111,7 @@ do
         e = tlEntry( section .. "AddBtn" )
         e.type = "execute"
         e.name = ""
-        e.image = "Interface\\AddOns\\Hekili\\Textures\\GreenPlus"
+        e.image = "Interface\\AddOns\\Herakili\\Textures\\GreenPlus"
         e.imageHeight = 16
         e.imageWidth = 16
         e.order = nToggles + 0.995
@@ -5325,7 +5325,7 @@ do
                                         return rawget( self.DB.profile.packs, pack ) == nil
                                     end,
                                     func = function ()
-                                        ACD:SelectGroup( "Hekili", "packs", self.DB.profile.specs[ id ].package )
+                                        ACD:SelectGroup( "Herakili", "packs", self.DB.profile.specs[ id ].package )
                                     end,
                                     order = 1.1,
                                     width = 0.15,
@@ -5582,7 +5582,7 @@ do
                                 cycle = {
                                     type = "toggle",
                                     name = "Recommend Target Swaps",
-                                    desc = "When target swapping is enabled, the addon may show an icon (|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t) when you should use an ability on a different target.  " ..
+                                    desc = "When target swapping is enabled, the addon may show an icon (|TInterface\\AddOns\\Herakili\\Textures\\Cycle:0|t) when you should use an ability on a different target.  " ..
                                         "This works well for some specs that simply want to apply a debuff to another target (like Windwalker), but can be less-effective for specializations that are concerned with " ..
                                         "maintaining dots/debuffs based on their durations (like Affliction).  This feature is targeted for improvement in a future update.",
                                     width = "full",
@@ -6101,7 +6101,7 @@ do
                     func = function ()
                         Hekili.DB.profile.packs[ packControl.newPackName ].spec = packControl.newPackSpec
                         Hekili:EmbedPackOptions()
-                        ACD:SelectGroup( "Hekili", "packs", packControl.newPackName )
+                        ACD:SelectGroup( "Herakili", "packs", packControl.newPackName )
                         packControl.newPackName = ""
                         packControl.newPackSpec = ""
                     end,
@@ -6119,7 +6119,7 @@ do
                     desc = "Each Priority can be shared with other addon users with these export strings.\n\n" ..
                         "You can also import a shared export string here.",
                     func = function ()
-                        ACD:SelectGroup( "Hekili", "packs", "sharePacks" )
+                        ACD:SelectGroup( "Herakili", "packs", "sharePacks" )
                     end,
                     order = 101,
                 },
@@ -6423,7 +6423,7 @@ do
                     name = pack,
                     order = 11 + count,
                     func = function ()
-                        ACD:SelectGroup( "Hekili", "packs", pack )
+                        ACD:SelectGroup( "Herakili", "packs", pack )
                     end,
                 }
 
@@ -6446,7 +6446,7 @@ do
                                     type = "description",
                                     name = function ()
                                         return BlizzBlue .. "This is a default priority package.  It will be automatically updated when the addon is updated.  If you want to customize this priority, " ..
-                                            "make a copy by clicking |TInterface\\Addons\\Hekili\\Textures\\WhiteCopy:0|t.|r"
+                                            "make a copy by clicking |TInterface\\AddOns\\Herakili\\Textures\\WhiteCopy:0|t.|r"
                                     end,
                                     fontSize = "medium",
                                     width = 3,
@@ -6530,7 +6530,7 @@ do
 
                                         Hekili:EmbedPackOptions()
                                         Hekili:LoadScripts()
-                                        ACD:SelectGroup( "Hekili", "packs", val )
+                                        ACD:SelectGroup( "Herakili", "packs", val )
                                     end,
                                     disabled = data.builtIn
                                 },
@@ -6541,7 +6541,7 @@ do
                                     desc = "Copy Priority",
                                     order = 0.26,
                                     width = 0.15,
-                                    image = [[Interface\AddOns\Hekili\Textures\WhiteCopy]],
+                                    image = [[Interface\AddOns\Herakili\Textures\WhiteCopy]],
                                     imageHeight = 20,
                                     imageWidth = 20,
                                     confirm = function () return "Create a copy of this priority pack?" end,
@@ -6568,7 +6568,7 @@ do
                                         Hekili.DB.profile.packs[ newPackName ] = newPack
                                         Hekili:EmbedPackOptions()
                                         Hekili:LoadScripts()
-                                        ACD:SelectGroup( "Hekili", "packs", newPackName )
+                                        ACD:SelectGroup( "Herakili", "packs", newPackName )
                                     end
                                 },
 
@@ -6591,7 +6591,7 @@ do
                                         Hekili:RestoreDefault( pack )
                                         Hekili:EmbedPackOptions()
                                         Hekili:LoadScripts()
-                                        ACD:SelectGroup( "Hekili", "packs", pack )
+                                        ACD:SelectGroup( "Herakili", "packs", pack )
                                     end
                                 },
 
@@ -6625,7 +6625,7 @@ do
                                         Hekili.Options.args.packs.plugins.packages[ pack ] = nil
 
                                         -- Hekili:EmbedPackOptions()
-                                        ACD:SelectGroup( "Hekili", "packs" )
+                                        ACD:SelectGroup( "Herakili", "packs" )
                                     end,
                                     hidden = data.builtIn
                                 },
@@ -6838,7 +6838,7 @@ do
                                     desc = "Create a New Action List",
                                     order = 1.1,
                                     width = 0.15,
-                                    image = "Interface\\AddOns\\Hekili\\Textures\\GreenPlus",
+                                    image = "Interface\\AddOns\\Herakili\\Textures\\GreenPlus",
                                     -- image = GetAtlasFile( "communities-icon-addgroupplus" ),
                                     -- imageCoords = GetAtlasCoords( "communities-icon-addgroupplus" ),
                                     imageHeight = 20,
@@ -6983,7 +6983,7 @@ do
                                 moveUpBtn = {
                                     type = "execute",
                                     name = "",
-                                    image = "Interface\\AddOns\\Hekili\\Textures\\WhiteUp",
+                                    image = "Interface\\AddOns\\Herakili\\Textures\\WhiteUp",
                                     -- image = GetAtlasFile( "hud-MainMenuBar-arrowup-up" ),
                                     -- imageCoords = GetAtlasCoords( "hud-MainMenuBar-arrowup-up" ),
                                     imageHeight = 20,
@@ -7011,7 +7011,7 @@ do
                                 moveDownBtn = {
                                     type = "execute",
                                     name = "",
-                                    image = "Interface\\AddOns\\Hekili\\Textures\\WhiteDown",
+                                    image = "Interface\\AddOns\\Herakili\\Textures\\WhiteDown",
                                     -- image = GetAtlasFile( "hud-MainMenuBar-arrowdown-up" ),
                                     -- imageCoords = GetAtlasCoords( "hud-MainMenuBar-arrowdown-up" ),
                                     imageHeight = 20,
@@ -7040,7 +7040,7 @@ do
                                 newActionBtn = {
                                     type = "execute",
                                     name = "",
-                                    image = "Interface\\AddOns\\Hekili\\Textures\\GreenPlus",
+                                    image = "Interface\\AddOns\\Herakili\\Textures\\GreenPlus",
                                     -- image = GetAtlasFile( "communities-icon-addgroupplus" ),
                                     -- imageCoords = GetAtlasCoords( "communities-icon-addgroupplus" ),
                                     imageHeight = 20,
@@ -8342,7 +8342,7 @@ do
                                     desc = desc,
                                     order = 5 + i,
                                     func = function ()
-                                        ACD:SelectGroup( "Hekili", sName )
+                                        ACD:SelectGroup( "Herakili", sName )
                                     end,
                                 }
                                 hide = false
@@ -9298,7 +9298,7 @@ end
 
 do
     local Options = {
-        name = "Hekili " .. Hekili.Version,
+        name = "Herakili " .. Hekili.Version,
         type = "group",
         handler = Hekili,
         get = 'GetOption',
@@ -9339,7 +9339,7 @@ do
                         type = 'description',
                         name = "",
                         fontSize = "medium",
-                        image = "Interface\\Addons\\Hekili\\Textures\\Taco256",
+                        image = "Interface\\AddOns\\Herakili\\Textures\\Taco256",
                         imageWidth = 192,
                         imageHeight = 192,
                         order = 5,
@@ -9349,7 +9349,7 @@ do
                     supporters = {
                         type = "description",
                         name = function ()
-                            return "|cFF00CCFFTHANK YOU TO OUR SUPPORTERS!|r\n\n" .. ns.Patrons .. ".\n\n" ..
+                            return "|cFF00CCFFHerakili is built on Hekili.  Thank you to Hekili's supporters:|r\n\n" .. ns.Patrons .. ".\n\n" ..
                                 "Please see the |cFFFFD100Issue Reporting|r tab for information about reporting bugs.\n\n"
                         end,
                         fontSize = "medium",
@@ -9359,22 +9359,22 @@ do
 
                     curse = {
                         type = "input",
-                        name = "Curse",
+                        name = "Based on Hekili (CurseForge)",
                         order = 10,
                         get = function () return "https://www.curseforge.com/wow/addons/hekili" end,
                         set = function () end,
                         width = "full",
-                        dialogControl = "SFX-Info-URL",
+                        -- (selectable text box; the SFX URL widget is not bundled)
                     },
 
                     github = {
                         type = "input",
-                        name = "GitHub",
+                        name = "Hekili on GitHub",
                         order = 11,
                         get = function () return "https://github.com/Hekili/hekili/" end,
                         set = function () end,
                         width = "full",
-                        dialogControl = "SFX-Info-URL",
+                        -- (selectable text box; the SFX URL widget is not bundled)
                     },
 
                     simulationcraft = {
@@ -9384,7 +9384,7 @@ do
                         get = function () return "https://github.com/simulationcraft/simc/wiki" end,
                         set = function () end,
                         width = "full",
-                        dialogControl = "SFX-Info-URL",
+                        -- (selectable text box; the SFX URL widget is not bundled)
                     }
                 }
             },
@@ -9515,7 +9515,8 @@ do
                 args = {
                     header = {
                         type = "description",
-                        name = "If you are having a technical issue with the addon, please submit an issue report via the link below.  When submitting your report, please include the information " ..
+                        name = "Herakili is a Classic Era port of Hekili.  Please report Herakili problems to the Herakili project, not to Hekili's authors.  " ..
+                            "When submitting your report, please include the information " ..
                             "below (specialization, talents, traits, gear), which can be copied and pasted for your convenience.  If you have a concern about the addon's recommendations, it is preferred " ..
                             "that you provide a Snapshot (which will include this information) instead.",
                         order = 10,
@@ -9532,13 +9533,11 @@ do
                         set = function () end,
                     },
                     link = {
-                        type = "input",
-                        name = "Link",
+                        type = "description",
+                        name = "Herakili project page: not published yet.",
                         order = 30,
                         width = "full",
-                        get = function() return "http://github.com/Hekili/hekili/issues" end,
-                        set = function() end,
-                        dialogControl = "SFX-Info-URL"
+                        fontSize = "medium",
                     },
                 }
             },
@@ -9712,7 +9711,7 @@ function Hekili:TotalRefresh( noOptions )
     if Hekili.OptionsReady then
         if Hekili.Config then
             self:RefreshOptions()
-            ACD:SelectGroup( "Hekili", "profiles" )
+            ACD:SelectGroup( "Herakili", "profiles" )
         else Hekili.OptionsReady = false end
     end
     self:UpdateDisplayVisibility()
@@ -9720,7 +9719,7 @@ function Hekili:TotalRefresh( noOptions )
 
     self:OverrideBinds()
 
-    -- LibStub("LibDBIcon-1.0"):Refresh( "Hekili", self.DB.profile.iconStore )
+    -- LibStub("LibDBIcon-1.0"):Refresh( "Herakili", self.DB.profile.iconStore )
 
     if WeakAuras and WeakAuras.ScanEvents then
         for name, toggle in pairs( Hekili.DB.profile.toggles ) do
@@ -9903,11 +9902,13 @@ function Hekili:SetOption( info, input, ... )
         elseif option == 'minimapIcon' then
             profile.iconStore.hide = input
 
+            -- LibDBIcon comes from other addons (not bundled), so look it up now rather than at load.
+            local LDBIcon = LibStub( "LibDBIcon-1.0", true )
             if LDBIcon then
                 if input then
-                    LDBIcon:Hide( "Hekili" )
+                    LDBIcon:Hide( "Herakili" )
                 else
-                    LDBIcon:Show( "Hekili" )
+                    LDBIcon:Show( "Herakili" )
                 end
             end
 
@@ -10166,7 +10167,7 @@ function Hekili:SetOption( info, input, ... )
     if ns.UI.Minimap then ns.UI.Minimap:RefreshDataText() end
 
     if Select then
-        LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Hekili", category, info[2], Select )
+        LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Herakili", category, info[2], Select )
     end
 
 end
@@ -10670,7 +10671,7 @@ do
                 Hekili:DumpDotInfo( aura )
             end
         else
-            LibStub( "AceConfigCmd-3.0" ):HandleCommand( "hekili", "Hekili", input )
+            LibStub( "AceConfigCmd-3.0" ):HandleCommand( "herakili", "Herakili", input )
         end
     end
 end
@@ -10682,88 +10683,8 @@ end
 local bit_band, bit_lshift, bit_rshift = bit.band, bit.lshift, bit.rshift
 local string_char = string.char
 
-local bytetoB64 = {
-    [0]="a","b","c","d","e","f","g","h",
-    "i","j","k","l","m","n","o","p",
-    "q","r","s","t","u","v","w","x",
-    "y","z","A","B","C","D","E","F",
-    "G","H","I","J","K","L","M","N",
-    "O","P","Q","R","S","T","U","V",
-    "W","X","Y","Z","0","1","2","3",
-    "4","5","6","7","8","9","(",")"
-}
-
-local B64tobyte = {
-    a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 6, h = 7,
-    i = 8, j = 9, k = 10, l = 11, m = 12, n = 13, o = 14, p = 15,
-    q = 16, r = 17, s = 18, t = 19, u = 20, v = 21, w = 22, x = 23,
-    y = 24, z = 25, A = 26, B = 27, C = 28, D = 29, E = 30, F = 31,
-    G = 32, H = 33, I = 34, J = 35, K = 36, L = 37, M = 38, N = 39,
-    O = 40, P = 41, Q = 42, R = 43, S = 44, T = 45, U = 46, V = 47,
-    W = 48, X = 49, Y = 50, Z = 51,["0"]=52,["1"]=53,["2"]=54,["3"]=55,
-    ["4"]=56,["5"]=57,["6"]=58,["7"]=59,["8"]=60,["9"]=61,["("]=62,[")"]=63
-}
-
--- This code is based on the Encode7Bit algorithm from LibCompress
--- Credit goes to Galmok (galmok@gmail.com)
-local encodeB64Table = {};
-
-local function encodeB64(str)
-    local B64 = encodeB64Table;
-    local remainder = 0;
-    local remainder_length = 0;
-    local encoded_size = 0;
-    local l=#str
-    local code
-    for i=1,l do
-        code = string.byte(str, i);
-        remainder = remainder + bit_lshift(code, remainder_length);
-        remainder_length = remainder_length + 8;
-        while(remainder_length) >= 6 do
-            encoded_size = encoded_size + 1;
-            B64[encoded_size] = bytetoB64[bit_band(remainder, 63)];
-            remainder = bit_rshift(remainder, 6);
-            remainder_length = remainder_length - 6;
-        end
-    end
-    if remainder_length > 0 then
-        encoded_size = encoded_size + 1;
-        B64[encoded_size] = bytetoB64[remainder];
-    end
-    return table.concat(B64, "", 1, encoded_size)
-end
-
-local decodeB64Table = {}
-
-local function decodeB64(str)
-    local bit8 = decodeB64Table;
-    local decoded_size = 0;
-    local ch;
-    local i = 1;
-    local bitfield_len = 0;
-    local bitfield = 0;
-    local l = #str;
-    while true do
-        if bitfield_len >= 8 then
-            decoded_size = decoded_size + 1;
-            bit8[decoded_size] = string_char(bit_band(bitfield, 255));
-            bitfield = bit_rshift(bitfield, 8);
-            bitfield_len = bitfield_len - 8;
-        end
-        ch = B64tobyte[str:sub(i, i)];
-        bitfield = bitfield + bit_lshift(ch or 0, bitfield_len);
-        bitfield_len = bitfield_len + 6;
-        if i > l then
-            break;
-        end
-        i = i + 1;
-    end
-    return table.concat(bit8, "", 1, decoded_size)
-end
-
-
-local Compresser = LibStub:GetLibrary("LibCompress")
-local Encoder = Compresser:GetChatEncodeTable()
+-- Legacy (pre-"Hekili:") import strings needed LibCompress, which is GPLv2-only and isn't bundled with
+-- Herakili (GPLv3); those strings are no longer supported.
 
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local ldConfig = { level = 5 }
@@ -10796,11 +10717,7 @@ local function StringToTable(inString, fromChat)
         decompressed = LibDeflate:DecompressDeflate(decoded)
         if not decompressed then return "Unable to decompress decoded string." end
     else
-        decoded = fromChat and decodeB64(inString) or Encoder:Decode(inString)
-        if not decoded then return "Unable to decode." end
-
-        decompressed, errorMsg = Compresser:Decompress(decoded);
-        if not decompressed then return "Unable to decompress decoded string: " .. errorMsg end
+        return "This string uses an old export format that is no longer supported; export it again from a current version."
     end
 
     local success, deserialized = Serializer:Deserialize(decompressed);

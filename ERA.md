@@ -1,7 +1,12 @@
-# Hekili for Classic Era
+# Herakili: Hekili for Classic Era
 
-This branch adds a Classic Era (1.15.x, interface 11509) flavor of Hekili, based on the upstream `wrath` branch.
-Era, Hardcore and Anniversary realms are covered; Season of Discovery (runes) is not.
+Herakili is a Classic Era (1.15.x, interface 11509) port of Hekili, based on the upstream `wrath` branch, released
+under the GNU GPL v3 (`LICENSE`; credits, changes and library licences in `NOTICE.md`).  Era, Hardcore and Anniversary
+realms are covered; Season of Discovery (runes) is not.
+
+The shipped addon is the `Herakili` folder built by `tools/build.sh` (Era TOC `Herakili_Vanilla.toc`, saved variables
+`HerakiliDB`, commands `/herakili` and `/hera`).  The source keeps Hekili's internal Lua identifier `Hekili` and the
+untouched Wrath files, which the build leaves out.
 
 ## Status: beta (`era-beta-1`)
 
@@ -24,7 +29,7 @@ Porting notes for further work are in `PORTING.md`.
 
 ## What changed in the engine
 
-- `Hekili_Vanilla.toc` (`X-Flavor: Era`) loads `Era\Classes.lua` and the Era class modules; `Hekili.IsEra()` was added and
+- `Herakili_Vanilla.toc` (`X-Flavor: Era`) loads `Era\Classes.lua` and the Era class modules; `Hekili.IsEra()` was added and
   `Hekili.IsClassic()` now covers Wrath and Era, so every "classic vs. retail" branch applies to Era too.
 - 1.15.8+ client changes: options panel via the Settings API; display dragging via `GetPhysicalScreenSize`;
   `GetPlayerAuraBySpellID` rebuilt from `C_UnitAuras`; spec group via `C_SpecializationInfo`; tolerant combat-rating
@@ -55,7 +60,7 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 | Command | Purpose |
 |---------|---------|
 | `LIBS=<dir> tools/test.sh` | Run everything below; `quick` skips the leveling runs, `HARNESS_SAVEDVARS=<Hekili.lua>` adds a run from a saved profile. |
-| `luajit tools/harness.lua Hekili_Vanilla.toc WARRIOR 17/34/0` | Runs the addon against a model of the Era client built from its own data: only APIs that exist resolve, spells/items/strings/CVars/constants/events come from the client tables, unknown items and events error like the client. Plays login, spec detection, priority restore/selection, compiles every entry, walks the options tree, then combat scenarios through the real engine. `HARNESS_LEVEL`, `HARNESS_DEBUG=<scenario>` (Hekili's decision log), `HARNESS_TARGETDEBUG`, `HARNESS_DUMP`. |
+| `luajit tools/harness.lua Herakili_Vanilla.toc WARRIOR 17/34/0` | Runs the addon against a model of the Era client built from its own data: only APIs that exist resolve, spells/items/strings/CVars/constants/events come from the client tables, unknown items and events error like the client. Plays login, spec detection, priority restore/selection, compiles every entry, walks the options tree, then combat scenarios through the real engine. `HARNESS_LEVEL`, `HARNESS_DEBUG=<scenario>` (Hekili's decision log), `HARNESS_TARGETDEBUG`, `HARNESS_DUMP`. |
 | `tools/build.sh [AddOns dir]` | Assemble `dist/Hekili`; optionally copy it into a WoW `Interface/AddOns` folder. |
 | `LIBS=<dir> lua5.1 tools/packtool.lua embed Era/Warrior.lua Era/APLs/WarriorFury.simc Fury 1` | Encode an APL into the built-in pack in a class module (versioned by date and time, so profiles update). `decode` / `encode` / `decodestr` too. |
 | `python3 tools/check_apl.py Era/Warrior.lua Era/APLs/*.simc` | Every action, aura, talent and setting an APL references exists. |

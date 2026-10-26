@@ -85,7 +85,7 @@ right before editing (other ports edit in parallel), and list every such change 
   (`H.Aura( spellID, remaining, stacks, duration )`), `target` (`H.Target( health, boss )`, `.distance`, `.casting`),
   `H.Plates( n )`, `groupSize`, `inCombat`, `gcdStart`, `cooldowns[ id ] = { start, duration }`; `H.Cast( spellID )`
   reports a real cast; `H.CLEU( subtype, src, dst, ... )` fires a combat log event.
-- Run: `luajit tools/harness.lua Hekili_Vanilla.toc <CLASS> <build>` (and `HARNESS_LEVEL=20 ... 0/0/0` for leveling).
+- Run: `luajit tools/harness.lua Herakili_Vanilla.toc <CLASS> <build>` (and `HARNESS_LEVEL=20 ... 0/0/0` for leveling).
   `HARNESS_DEBUG="<part of a scenario name>"` prints Hekili's own decision log for that scenario.
 - Then `LIBS=... tools/test.sh quick <CLASS>` must end with `ALL CHECKS PASSED`.
 - Scenarios should cover: single target, AoE (3+ enemies), execute/finisher thresholds, resource-starved, out of combat

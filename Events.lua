@@ -1070,7 +1070,7 @@ RegisterEvent( "PLAYER_REGEN_DISABLED", function( event )
         state.combat = GetTime() - 0.01
     end
 
-    if Hekili.Config and not LibStub( "AceConfigDialog-3.0" ).OpenFrames[ "Hekili" ] then
+    if Hekili.Config and not LibStub( "AceConfigDialog-3.0" ).OpenFrames[ "Herakili" ] then
         ns.StopConfiguration()
         Hekili:UpdateDisplayVisibility()
     end
@@ -1182,8 +1182,9 @@ local lowLevelWarned = false
 
 -- Need to make caching system.
 RegisterUnitEvent( "UNIT_SPELLCAST_SUCCEEDED", "player", "target", function( event, unit, _, spellID )
-    if lowLevelWarned == false and UnitLevel( "player" ) < 50 then
-        Hekili:Notify( "Hekili is designed for current content.\nUse below level 50 at your own risk.", 5 )
+    -- Era priorities are built for leveling too, so there is no low-level warning there.
+    if lowLevelWarned == false and not Hekili.IsEra() and UnitLevel( "player" ) < 50 then
+        Hekili:Notify( "Herakili is designed for current content.\nUse below level 50 at your own risk.", 5 )
         lowLevelWarned = true
     end
 

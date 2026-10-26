@@ -1,10 +1,12 @@
 ## Interface: 11509
-## Version: era-beta-1
-## Title: Hekili
-## Author: Hekili
+## Version: era-beta-2
+## Title: Herakili
+## Author: Herakili contributors (based on Hekili by Hekili)
 ## X-Flavor: Era
-## Notes: Priority helper for Classic Era, based on SimulationCraft-style action lists.
-## SavedVariables: HekiliDB
+## Notes: Rotation and priority helper for Classic Era, a port of Hekili.  Licensed under the GNU GPL v3.
+## X-License: GPL-3.0
+## X-Credits: Based on Hekili (https://github.com/Hekili/hekili) by Hekili and contributors
+## SavedVariables: HerakiliDB
 ## OptionalDeps: AddOnSkins, ButtonForge, ConsolePort, ElvUI, LibDualSpec-1.0, Masque, WeakAuras
 
 embeds.xml

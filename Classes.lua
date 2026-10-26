@@ -1225,7 +1225,7 @@ end
 
 
 class.file = UnitClassBase( "player" )
-local all = Hekili:NewSpecialization( 0, "All", "Interface\\Addons\\Hekili\\Textures\\LOGO-WHITE.blp" )
+local all = Hekili:NewSpecialization( 0, "All", "Interface\\AddOns\\Herakili\\Textures\\LOGO-WHITE.blp" )
 
 ------------------------------
 -- SHARED SPELLS/BUFFS/ETC. --

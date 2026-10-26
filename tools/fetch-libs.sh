@@ -18,6 +18,14 @@ unzip -q "$WORK/hekili.zip" -d "$WORK/x"
 added=0
 for lib in "$WORK"/x/Hekili/Libs/*/; do
     name="$(basename "$lib")"
+    # Not bundled with Herakili (GPLv3): LibCompress is GPLv2-only; AceGUI-3.0_SFX-Widgets' licence forbids
+    # redistribution; LibDataBroker-1.1 is "All Rights Reserved" (and LibDBIcon needs it) -- the minimap button uses
+    # copies other addons load.
+    if [ "$name" = "LibCompress" ] || [ "$name" = "AceGUI-3.0_SFX-Widgets" ] || [ "$name" = "LibDataBroker-1.1" ] \
+        || [ "$name" = "LibDBIcon-1.0" ]; then
+        echo "  skip    Libs/$name (not used)"
+        continue
+    fi
     if [ -e "$REPO_ROOT/Libs/$name" ]; then
         echo "  keep    Libs/$name"
     else

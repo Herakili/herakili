@@ -774,7 +774,7 @@ spec:RegisterAbilities( {
 -- Settings
 spec:RegisterSetting( "priest_description", nil, {
     type = "description",
-    name = "Hekili recommends damage spells only; healing and buffs for others are up to you.  Holy and Discipline " ..
+    name = "Herakili recommends damage spells only; healing and buffs for others are up to you.  Holy and Discipline " ..
         "priests get the same damage priority (Smite, Holy Fire and Shadow Word: Pain when out of Shadowform)."
 } )
 
@@ -898,14 +898,14 @@ spec:RegisterPack( "Shadow", 20261026.2303, [[Hekili:9MvBVXTns4FlTf3E7IZv2R95CxC
 
 spec:RegisterPackSelector( "discipline", "Shadow", "|T135987:0|t Discipline",
     "If you have spent more points in |T135987:0|t Discipline than in any other tree, this priority will be automatically selected for you.  " ..
-    "Hekili has no healing priority; the Shadow priority's damage spells are used.",
+    "Herakili has no healing priority; the Shadow priority's damage spells are used.",
     function( tab1, tab2, tab3 )
         return tab1 > max( tab2, tab3 )
     end )
 
 spec:RegisterPackSelector( "holy", "Shadow", "|T237542:0|t Holy",
     "If you have spent more points in |T237542:0|t Holy than in any other tree, this priority will be automatically selected for you.  " ..
-    "Hekili has no healing priority; the Shadow priority's damage spells are used.",
+    "Herakili has no healing priority; the Shadow priority's damage spells are used.",
     function( tab1, tab2, tab3 )
         return tab2 > max( tab1, tab3 )
     end )

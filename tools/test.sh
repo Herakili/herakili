@@ -24,7 +24,7 @@ n=0
 while read -r f; do
     luac5.1 -p "$f" || fail=1
     n=$((n + 1))
-done < <(grep -v '^#' Hekili_Vanilla.toc | grep '\.lua' | tr '\\' '/' | tr -d '\r')
+done < <(grep -v '^#' Herakili_Vanilla.toc | grep '\.lua' | tr '\\' '/' | tr -d '\r')
 echo "checked $n files"
 
 step "Registered events exist on Era"
@@ -40,8 +40,8 @@ for module in Era/*.lua; do
     id=${CLASS_ID[$CLASS]:-}
     [ -z "$id" ] && { echo "!! unknown class module $module"; fail=1; continue; }
 
-    if ! grep -q "Era\\\\$name.lua" Hekili_Vanilla.toc; then
-        echo "!! $module is not listed in Hekili_Vanilla.toc"; fail=1
+    if ! grep -q "Era\\\\$name.lua" Herakili_Vanilla.toc; then
+        echo "!! $module is not listed in Herakili_Vanilla.toc"; fail=1
     fi
 
     simcs=$(ls Era/APLs/"$name"*.simc 2>/dev/null)
@@ -84,7 +84,7 @@ for module in Era/*.lua; do
         local label="$1" level="$2" build="$3"
         step "$name harness: $label"
         local out code
-        out=$(HARNESS_LEVEL="$level" timeout 300 luajit tools/harness.lua Hekili_Vanilla.toc "$CLASS" "$build" 2>&1)
+        out=$(HARNESS_LEVEL="$level" timeout 300 luajit tools/harness.lua Herakili_Vanilla.toc "$CLASS" "$build" 2>&1)
         code=$?
         echo "$out" | grep -E "^(Active priority|GCD tracked|Talents detected|Priority entries|Options panel|Loaded saved)|^  [A-Z]|^No errors|error\(s\)|^  [a-zA-Z/ ]+.*: " | grep -v '\[chat\]' | cut -c1-180
         [ "$code" -eq 0 ] || fail=1

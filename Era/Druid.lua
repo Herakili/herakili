@@ -1312,7 +1312,7 @@ spec:RegisterSetting( "druid_description", nil, {
     type = "description",
     name = "The Feral priority follows your current form: Cat Form gets the cat rotation, Bear Form the bear (tank) rotation, " ..
         "caster form shifts into your preferred form (or casts Wrath / Moonfire before you have one).  The Balance priority is " ..
-        "also used for Restoration, which Hekili doesn't cover (it doesn't do healing).\n\n"
+        "also used for Restoration, which Herakili doesn't cover (it doesn't do healing).\n\n"
 } )
 
 spec:RegisterSetting( "feral_form", "cat", {
@@ -1342,7 +1342,7 @@ spec:RegisterSetting( "cat_header", nil, {
 spec:RegisterSetting( "behind", "group", {
     type = "select",
     name = "Behind the Target (Shred, Ravage)",
-    desc = "Hekili can't see whether you are behind your target.  Shred and Ravage are only recommended when this says you are; " ..
+    desc = "Herakili can't see whether you are behind your target.  Shred and Ravage are only recommended when this says you are; " ..
         "otherwise Claw (and Pounce from Prowl).",
     width = "full",
     values = {
@@ -1579,7 +1579,7 @@ spec:RegisterPackSelector( "feral", "Feral", "|T132115:0|t Feral",
     end )
 
 spec:RegisterPackSelector( "restoration", "Balance", "|T136041:0|t Restoration",
-    "Hekili doesn't do healing: with most points in |T136041:0|t Restoration, the Balance (damage) priority is selected.",
+    "Herakili doesn't do healing: with most points in |T136041:0|t Restoration, the Balance (damage) priority is selected.",
     function( tab1, tab2, tab3 )
         return tab3 > max( tab1, tab2 )
     end )

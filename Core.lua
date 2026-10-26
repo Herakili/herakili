@@ -40,13 +40,13 @@ ns.checkImports = checkImports
 
 local function EmbedBlizOptions()
     local panel = CreateFrame( "Frame", "HekiliDummyPanel", UIParent )
-    panel.name = "Hekili"
+    panel.name = "Herakili"
 
     local open = CreateFrame( "Button", "HekiliOptionsButton", panel, "UIPanelButtonTemplate" )
     open:SetPoint( "CENTER", panel, "CENTER", 0, 0 )
     open:SetWidth( 250 )
     open:SetHeight( 25 )
-    open:SetText( "Open Hekili Options Panel" )
+    open:SetText( "Open Herakili Options Panel" )
 
     open:SetScript( "OnClick", function ()
         if InterfaceOptionsFrameOkay then
@@ -72,42 +72,16 @@ local function EmbedBlizOptions()
 end
 
 
--- OnInitialize()
--- Addon has been loaded by the WoW client (1x).
-function Hekili:OnInitialize()
-    self.DB = LibStub( "AceDB-3.0" ):New( "HekiliDB", self:GetDefaults(), true )
-
-    self.Options = self:GetOptions()
-    self.Options.args.profiles = LibStub( "AceDBOptions-3.0" ):GetOptionsTable( self.DB )
-
-    -- Reimplement LibDualSpec; some folks want different layouts w/ specs of the same class.
-    -- LibDualSpec only loads on Classic Era realms that have dual spec (Season of Discovery, Anniversary).
-    local LDS = LibStub( "LibDualSpec-1.0", true )
-    if LDS then
-        LDS:EnhanceDatabase( self.DB, "Hekili" )
-        LDS:EnhanceOptions( self.Options.args.profiles, self.DB )
-    end
-
-    self.DB.RegisterCallback( self, "OnProfileChanged", "TotalRefresh" )
-    self.DB.RegisterCallback( self, "OnProfileCopied", "TotalRefresh" )
-    self.DB.RegisterCallback( self, "OnProfileReset", "TotalRefresh" )
-
-    local AceConfig = LibStub( "AceConfig-3.0" )
-    AceConfig:RegisterOptionsTable( "Hekili", self.Options )
-
-    local AceConfigDialog = LibStub( "AceConfigDialog-3.0" )
-    -- self.optionsFrame = AceConfigDialog:AddToBlizOptions( "Hekili", "Hekili" )
-    EmbedBlizOptions()
-
-    self:RegisterChatCommand( "hekili", "CmdLine" )
-    self:RegisterChatCommand( "hek", "CmdLine" )
-
+-- Minimap button.  LibDataBroker-1.1 and LibDBIcon-1.0 aren't bundled with Herakili (LibDataBroker's licence doesn't
+-- allow redistribution); most players have them through other addons, so the button is created once both are loaded.
+function ns.SetupMinimapButton( self )
+    if ns.UI.MinimapRegistered then return end
     local LDB = LibStub( "LibDataBroker-1.1", true )
     local LDBIcon = LDB and LibStub( "LibDBIcon-1.0", true )
     if LDB then
-        ns.UI.Minimap = ns.UI.Minimap or LDB:NewDataObject( "Hekili", {
+        ns.UI.Minimap = ns.UI.Minimap or LDB:NewDataObject( "Herakili", {
             type = "data source",
-            text = "Hekili",
+            text = "Herakili",
             icon = "Interface\\ICONS\\spell_nature_bloodlust",
             OnClick = function( f, button )
                 if button == "RightButton" then ns.StartConfiguration()
@@ -121,7 +95,7 @@ function Hekili:OnInitialize()
                 GameTooltip:Hide()
             end,
             OnTooltipShow = function( tt )
-                tt:AddDoubleLine( "Hekili", ns.UI.Minimap.text )
+                tt:AddDoubleLine( "Herakili", ns.UI.Minimap.text )
                 tt:AddLine( "|cFFFFFFFFLeft-click to make quick adjustments.|r" )
                 tt:AddLine( "|cFFFFFFFFRight-click to open the options interface.|r" )
             end
@@ -152,9 +126,43 @@ function Hekili:OnInitialize()
         ns.UI.Minimap:RefreshDataText()
 
         if LDBIcon then
-            LDBIcon:Register( "Hekili", ns.UI.Minimap, self.DB.profile.iconStore )
+            LDBIcon:Register( "Herakili", ns.UI.Minimap, self.DB.profile.iconStore )
         end
     end
+    if LDBIcon and ns.UI.Minimap then ns.UI.MinimapRegistered = true end
+end
+
+-- OnInitialize()
+-- Addon has been loaded by the WoW client (1x).
+function Hekili:OnInitialize()
+    self.DB = LibStub( "AceDB-3.0" ):New( "HerakiliDB", self:GetDefaults(), true )
+
+    self.Options = self:GetOptions()
+    self.Options.args.profiles = LibStub( "AceDBOptions-3.0" ):GetOptionsTable( self.DB )
+
+    -- Reimplement LibDualSpec; some folks want different layouts w/ specs of the same class.
+    -- LibDualSpec only loads on Classic Era realms that have dual spec (Season of Discovery, Anniversary).
+    local LDS = LibStub( "LibDualSpec-1.0", true )
+    if LDS then
+        LDS:EnhanceDatabase( self.DB, "Herakili" )
+        LDS:EnhanceOptions( self.Options.args.profiles, self.DB )
+    end
+
+    self.DB.RegisterCallback( self, "OnProfileChanged", "TotalRefresh" )
+    self.DB.RegisterCallback( self, "OnProfileCopied", "TotalRefresh" )
+    self.DB.RegisterCallback( self, "OnProfileReset", "TotalRefresh" )
+
+    local AceConfig = LibStub( "AceConfig-3.0" )
+    AceConfig:RegisterOptionsTable( "Herakili", self.Options )
+
+    local AceConfigDialog = LibStub( "AceConfigDialog-3.0" )
+    -- self.optionsFrame = AceConfigDialog:AddToBlizOptions( "Herakili", "Herakili" )
+    EmbedBlizOptions()
+
+    self:RegisterChatCommand( "herakili", "CmdLine" )
+    self:RegisterChatCommand( "hera", "CmdLine" )
+
+    ns.SetupMinimapButton( self )
 
 
     --[[ NEED TO PUT VERSION UPDATING STUFF HERE.
@@ -202,6 +210,8 @@ end
 
 
 function Hekili:OnEnable()
+    -- Addons loading after this one may provide LibDataBroker/LibDBIcon.
+    ns.SetupMinimapButton( self )
     ns.StartEventHandler()
     self:TotalRefresh( true )
 
@@ -2081,7 +2091,7 @@ function Hekili.Update()
                         snaps = dispName
                     end
 
-                    if Hekili.Config then LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Hekili", "snapshots" ) end
+                    if Hekili.Config then LibStub( "AceConfigDialog-3.0" ):SelectGroup( "Herakili", "snapshots" ) end
                 end
             -- else
                 -- We don't track debug/snapshot recommendations because the additional debug info ~40% more CPU intensive.
@@ -2243,7 +2253,7 @@ end
 function Hekili:DumpFrameInfo()
     local output
 
-    local cpu = GetAddOnCPUUsage( "Hekili" )
+    local cpu = GetAddOnCPUUsage( addon )
 
     wipe( usedCPU )
 

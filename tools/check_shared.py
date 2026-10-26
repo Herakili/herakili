@@ -1,7 +1,7 @@
 """Check every ability/aura the engine registered (shared + class) against the Classic Era client tables.
 
 Usage:
-    HARNESS_DUMP=/tmp/reg.txt luajit tools/harness.lua Hekili_Vanilla.toc WARRIOR 17/34/0
+    HARNESS_DUMP=/tmp/reg.txt luajit tools/harness.lua Herakili_Vanilla.toc WARRIOR 17/34/0
     python3 tools/check_shared.py /tmp/reg.txt
 
 Lists registered spell IDs and item IDs that don't exist on Era.  Those can't work there: a missing spell has

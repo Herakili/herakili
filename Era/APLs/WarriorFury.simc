@@ -1,0 +1,58 @@
+## Fury Warrior (Classic Era 1.15)
+## Sources: Classic Era WarriorSim (GuybrushGit/WarriorSim) defaults, Warcraft Tavern / wowtbc.gg Classic Fury guides.
+## Rage dumps, Sunder, Demoralizing Shout, Rend, Hamstring weaving and the Overpower dance are controlled in the Warrior settings.
+
+actions.precombat+=/berserker_stance,if=buff.stance.down
+actions.precombat+=/battle_shout,if=buff.battle_shout.remains<30
+
+actions+=/call_action_list,name=init
+actions+=/pummel
+actions+=/run_action_list,name=berserker,if=buff.berserker_stance.up
+actions+=/run_action_list,name=battle,if=buff.battle_stance.up
+actions+=/run_action_list,name=defensive,if=buff.defensive_stance.up
+actions+=/call_action_list,name=battle
+
+actions.init+=/variable,name=execute_phase,value=target.health.pct<20
+actions.init+=/variable,name=can_queue,value=!variable.execute_phase|settings.execute_queueing
+actions.init+=/variable,name=strike_over_execute,value=settings.execute_bt_ap>0&stat.attack_power>=settings.execute_bt_ap
+actions.init+=/variable,name=should_sunder,value=settings.debuff_sunder_enabled&target.time_to_die>((5-debuff.sunder_armor.stack)*1.5)+3
+
+## Berserker Stance: the normal Fury rotation.
+actions.berserker+=/intercept,if=target.outside8
+actions.berserker+=/battle_shout,if=buff.battle_shout.remains<3
+actions.berserker+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
+actions.berserker+=/berserker_rage,if=talent.improved_berserker_rage.enabled&rage.deficit>=10&time>0
+actions.berserker+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.hs_rage_threshold&variable.can_queue
+actions.berserker+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.cleave_rage_threshold&variable.can_queue
+actions.berserker+=/death_wish,if=target.time_to_die>20|variable.execute_phase
+actions.berserker+=/recklessness,if=variable.execute_phase|target.time_to_die<16
+actions.berserker+=/use_items
+actions.berserker+=/sunder_armor,if=variable.should_sunder&(debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<3)
+actions.berserker+=/execute,if=!variable.strike_over_execute
+actions.berserker+=/whirlwind,if=active_enemies>2
+actions.berserker+=/bloodthirst
+actions.berserker+=/whirlwind,if=!variable.execute_phase&(cooldown.bloodthirst.remains>=2|rage.current>=55)
+actions.berserker+=/execute
+actions.berserker+=/battle_stance,use_off_gcd=1,if=settings.overpower_dance&buff.overpower_ready.up&rage.current<=stance_rage_retained&cooldown.overpower.remains<0.5&cooldown.bloodthirst.remains>1.5&cooldown.whirlwind.remains>1.5
+actions.berserker+=/demoralizing_shout,if=settings.debuff_demoshout_enabled&debuff.demoralizing_shout.remains<3
+actions.berserker+=/hamstring,if=settings.hamstring_weave&rage.current>=settings.hamstring_rage_threshold&cooldown.bloodthirst.remains>1.5&cooldown.whirlwind.remains>1.5
+
+## Battle Stance: openers, Overpower, and leveling before Berserker Stance (level 30).
+actions.battle+=/charge,if=target.outside8
+actions.battle+=/berserker_stance,use_off_gcd=1,if=time>0&!buff.overpower_ready.up
+actions.battle+=/battle_shout,if=buff.battle_shout.remains<3
+actions.battle+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
+actions.battle+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.hs_rage_threshold&variable.can_queue
+actions.battle+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.cleave_rage_threshold&variable.can_queue
+actions.battle+=/overpower
+actions.battle+=/sunder_armor,if=variable.should_sunder&(debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<3)
+actions.battle+=/execute
+actions.battle+=/bloodthirst
+actions.battle+=/thunder_clap,if=active_enemies>2&debuff.thunder_clap.remains<2
+actions.battle+=/demoralizing_shout,if=(settings.debuff_demoshout_enabled|active_enemies>2)&debuff.demoralizing_shout.remains<3
+actions.battle+=/rend,if=settings.rend_enabled&active_enemies<3&debuff.rend.down&target.time_to_die>9
+actions.battle+=/hamstring,if=settings.hamstring_weave&rage.current>=settings.hamstring_rage_threshold
+
+## Defensive Stance: get back to a damage stance.
+actions.defensive+=/berserker_stance
+actions.defensive+=/battle_stance

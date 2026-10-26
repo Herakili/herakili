@@ -24,7 +24,7 @@ local trim = string.trim
 local tcopy = ns.tableCopy
 local tinsert, tremove, twipe = table.insert, table.remove, table.wipe
 
-local GetSpecialization = _G.GetSpecialization or function() return GetActiveTalentGroup() end
+local GetSpecialization = _G.GetSpecialization or function() return C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup and C_SpecializationInfo.GetActiveSpecGroup() or GetActiveTalentGroup() end
 local GetSpecializationInfo = _G.GetSpecializationInfo or function()
     local name, baseName, id = UnitClass( "player" )
     return id, baseName, name
@@ -49,15 +49,26 @@ local function EmbedBlizOptions()
     open:SetText( "Open Hekili Options Panel" )
 
     open:SetScript( "OnClick", function ()
-        InterfaceOptionsFrameOkay:Click()
-        GameMenuButtonContinue:Click()
+        if InterfaceOptionsFrameOkay then
+            InterfaceOptionsFrameOkay:Click()
+            GameMenuButtonContinue:Click()
+        else
+            -- Classic Era (1.15.8+) uses the modern Settings panel.
+            if SettingsPanel then HideUIPanel( SettingsPanel ) end
+            if GameMenuFrame then HideUIPanel( GameMenuFrame ) end
+        end
 
         ns.StartConfiguration()
     end )
 
     Hekili:ProfileFrame( "OptionsEmbedFrame", open )
 
-    InterfaceOptions_AddCategory( panel )
+    if InterfaceOptions_AddCategory then
+        InterfaceOptions_AddCategory( panel )
+    elseif Settings and Settings.RegisterCanvasLayoutCategory then
+        local category = Settings.RegisterCanvasLayoutCategory( panel, panel.name )
+        Settings.RegisterAddOnCategory( category )
+    end
 end
 
 
@@ -70,9 +81,12 @@ function Hekili:OnInitialize()
     self.Options.args.profiles = LibStub( "AceDBOptions-3.0" ):GetOptionsTable( self.DB )
 
     -- Reimplement LibDualSpec; some folks want different layouts w/ specs of the same class.
-    local LDS = LibStub( "LibDualSpec-1.0" )
-    LDS:EnhanceDatabase( self.DB, "Hekili" )
-    LDS:EnhanceOptions( self.Options.args.profiles, self.DB )
+    -- LibDualSpec only loads on Classic Era realms that have dual spec (Season of Discovery, Anniversary).
+    local LDS = LibStub( "LibDualSpec-1.0", true )
+    if LDS then
+        LDS:EnhanceDatabase( self.DB, "Hekili" )
+        LDS:EnhanceOptions( self.Options.args.profiles, self.DB )
+    end
 
     self.DB.RegisterCallback( self, "OnProfileChanged", "TotalRefresh" )
     self.DB.RegisterCallback( self, "OnProfileCopied", "TotalRefresh" )

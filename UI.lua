@@ -20,13 +20,13 @@ local round = ns.round
 
 local format, insert = string.format, table.insert
 
-local GetSpecialization = _G.GetSpecialization or function() return GetActiveTalentGroup() end
+local GetSpecialization = _G.GetSpecialization or function() return C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup and C_SpecializationInfo.GetActiveSpecGroup() or GetActiveTalentGroup() end
 local GetSpecializationInfo = _G.GetSpecializationInfo or function()
     local name, baseName, id = UnitClass( "player" )
     return id, baseName, name
 end
 local HasVehicleActionBar, HasOverrideActionBar, UnitHasVehicleUI, UnitOnTaxi = HasVehicleActionBar, HasOverrideActionBar, UnitHasVehicleUI, UnitOnTaxi
-local IsInPetBattle = Hekili.IsWrath() and function() return false end or C_PetBattles.IsInBattle
+local IsInPetBattle = Hekili.IsClassic() and function() return false end or C_PetBattles.IsInBattle
 local IsSpellOverlayed = _G.IsSpellOverlayed or function() return false end
 
 local Masque, MasqueGroup
@@ -53,10 +53,16 @@ local function startScreenMovement(frame)
 end
 
 local function stopScreenMovement(frame)
-    local monitor = (tonumber(GetCVar("gxMonitor")) or 0) + 1
-    local resolutions = {GetScreenResolutions()}
-    local resolution = resolutions[GetCurrentResolution()] or GetCVar("gxWindowedResolution") or "1024x768"
-    local scrW, scrH = resolution:match("(%d+)x(%d+)")
+    local scrW, scrH
+
+    if GetScreenResolutions and GetCurrentResolution then
+        local resolutions = {GetScreenResolutions()}
+        local resolution = resolutions[GetCurrentResolution()] or GetCVar("gxWindowedResolution") or "1024x768"
+        scrW, scrH = resolution:match("(%d+)x(%d+)")
+    else
+        -- Classic Era (1.15.8+) no longer has the resolution list APIs.
+        scrW, scrH = GetPhysicalScreenSize()
+    end
 
     local scale, pScale = Hekili:GetScale(), UIParent:GetScale()
 
@@ -880,7 +886,7 @@ do
         Cooldowns = 0.25
     }
 
-    local LRC = LibStub("LibRangeCheck-2.0")
+    local LRC = LibStub("LibRangeCheck-3.0")
     local LSF = SpellFlashCore
     local catchFlash, lastFramesFlashed = nil, {}
 

@@ -4,7 +4,7 @@
 local addon, ns = ...
 local Hekili = _G[ addon ]
 
-local GetSpecialization = _G.GetSpecialization or function() return GetActiveTalentGroup() end
+local GetSpecialization = _G.GetSpecialization or function() return C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup and C_SpecializationInfo.GetActiveSpecGroup() or GetActiveTalentGroup() end
 local GetSpecializationInfo = _G.GetSpecializationInfo or function()
     local name, baseName, id = UnitClass( "player" )
     return id, baseName, name

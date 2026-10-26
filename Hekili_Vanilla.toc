@@ -1,0 +1,29 @@
+## Interface: 11509
+## Version: @project-version@
+## Title: Hekili
+## Author: Hekili
+## X-Flavor: Era
+## Notes: Priority helper for Classic Era, based on SimulationCraft-style action lists.
+## SavedVariables: HekiliDB
+## OptionalDeps: AddOnSkins, ButtonForge, ConsolePort, ElvUI, LibDualSpec-1.0, Masque, WeakAuras
+
+embeds.xml
+
+Hekili.lua
+Utils.lua
+Formatting.lua
+MultilineEditor.lua
+Constants.lua
+State.lua
+Events.lua
+
+Classes.lua
+
+Era\Classes.lua
+Era\Warrior.lua
+
+Targets.lua
+Options.lua
+UI.lua
+Scripts.lua
+Core.lua

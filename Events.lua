@@ -9,6 +9,8 @@ local state = Hekili.State
 local PTR = ns.PTR
 local TTD = ns.TTD
 
+local GetPlayerAuraBySpellID = ns.GetPlayerAuraBySpellID
+
 local formatKey = ns.formatKey
 
 local abs = math.abs
@@ -16,7 +18,7 @@ local lower = string.lower
 local insert, remove, sort, wipe = table.insert, table.remove, table.sort, table.wipe
 
 local CGetItemInfo = ns.CachedGetItemInfo
-local RC = LibStub( "LibRangeCheck-2.0" )
+local RC = LibStub( "LibRangeCheck-3.0" )
 
 -- Abandoning AceEvent in favor of darkend's solution from:
 -- http://andydote.co.uk/2014/11/23/good-design-in-warcraft-addons.html
@@ -53,7 +55,7 @@ local function SetZoneInfo()
     state.instanceDifficulty = (string.find(difficultyName, "Heroic") and "Heroic") or "Normal"
     state.bg = zone == "pvp"
     state.arena = zone == "arena"
-    state.torghast = not Hekili.IsWrath() and IsInJailersTower() or false
+    state.torghast = not Hekili.IsClassic() and IsInJailersTower() or false
 end
 
 local function GenericOnEvent( self, event, ... )
@@ -393,7 +395,7 @@ end)
 
 
 do
-    if Hekili.IsWrath() then
+    if Hekili.IsClassic() then
         RegisterEvent( "ACTIVE_TALENT_GROUP_CHANGED", function()
             Hekili:SpecializationChanged()
         end )
@@ -719,7 +721,7 @@ do
 
     local wasWearing = {}
     local updateIsQueued = false
-    local maxItemSlot = Hekili.IsWrath() and INVSLOT_LAST_EQUIPPED or Enum.ItemSlotFilterTypeMeta.MaxValue
+    local maxItemSlot = Hekili.IsClassic() and INVSLOT_LAST_EQUIPPED or Enum.ItemSlotFilterTypeMeta.MaxValue
 
     function ns.updateGear()
         if not Hekili.PLAYER_ENTERING_WORLD or GetTime() - lastUpdate < 1 then
@@ -1018,6 +1020,7 @@ do
         end
     else
         RegisterEvent( "PLAYER_TALENT_UPDATE", Update )
+        if Hekili.IsEra() then RegisterEvent( "CHARACTER_POINTS_CHANGED", Update ) end
     end
 end
 
@@ -2372,7 +2375,7 @@ RegisterEvent( "BAG_UPDATE", DelayedUpdateKeybindings )
 -- RegisterEvent( "SPELLS_CHANGED", ReadKeybindings )
 -- RegisterEvent( "ACTIONBAR_SLOT_CHANGED", DelayedUpdateOneKeybinding )
 
-if Hekili.IsWrath() then
+if Hekili.IsClassic() then
     RegisterEvent( "ACTIVE_TALENT_GROUP_CHANGED", function( event )
         DelayedUpdateKeybindings( event )
     end )

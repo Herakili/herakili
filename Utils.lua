@@ -509,6 +509,19 @@ function ns.FindRaidBuffLowestRemainsByID(id)
     return buffRemainsReturn == nil and 0 or buffRemainsReturn
 end
 
+-- Classic Era (1.15.8+) has no GetPlayerAuraBySpellID global; build it from C_UnitAuras there.
+do
+    local GetPlayerAuraBySpellID = _G.GetPlayerAuraBySpellID
+
+    if not GetPlayerAuraBySpellID and C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and AuraUtil and AuraUtil.UnpackAuraData then
+        GetPlayerAuraBySpellID = function( id )
+            return AuraUtil.UnpackAuraData( C_UnitAuras.GetPlayerAuraBySpellID( id ) )
+        end
+    end
+
+    ns.GetPlayerAuraBySpellID = GetPlayerAuraBySpellID or function( id ) return ns.FindUnitBuffByID( "player", id ) end
+end
+
 -- Duplicate spell info lookup.
 function ns.FindUnitBuffByID( unit, id, filter )
     local playerOrPet = false

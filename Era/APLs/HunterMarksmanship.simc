@@ -1,0 +1,48 @@
+## Marksmanship Hunter (Classic Era 1.15)
+## Sources: wowtbc.gg Classic Marksmanship Hunter guide (priority, slow/fast weapon Aimed Shot timing), Icy Veins Classic Hunter
+## rotation (clipped vs. full cycles), legacy-wow.com "Hunter damage cycles breakdown" (Aimed Shot holds Auto Shot; free shot after it).
+## Aimed Shot timing, Multi-Shot clipping, Arcane Shot mana, Serpent Sting, Hunter's Mark, Volley and pet handling are Hunter settings.
+
+actions.precombat+=/call_pet,if=pet_missing
+actions.precombat+=/revive_pet,if=pet_needs_revive
+actions.precombat+=/mend_pet,if=pet.alive&pet.health_pct<settings.mend_pet_health&buff.mend_pet.down
+actions.precombat+=/aspect_of_the_hawk,if=buff.aspect_of_the_hawk.down
+actions.precombat+=/aspect_of_the_monkey,if=buff.aspect.down
+actions.precombat+=/trueshot_aura,if=buff.trueshot_aura.remains<300
+actions.precombat+=/hunters_mark,if=settings.hunters_mark&debuff.hunters_mark.down&!target.within8
+## Opener: Aimed Shot from range, otherwise a Serpent Sting / Arcane Shot pull.
+actions.precombat+=/aimed_shot,if=aimed_shot_wanted&!target.within8
+actions.precombat+=/serpent_sting,if=serpent_wanted&!target.within8
+actions.precombat+=/arcane_shot,if=!target.within8
+actions.precombat+=/auto_shot
+
+actions+=/call_action_list,name=pet
+actions+=/aspect_of_the_hawk,if=buff.aspect_of_the_hawk.down
+actions+=/aspect_of_the_monkey,if=buff.aspect.down
+actions+=/trueshot_aura,if=buff.trueshot_aura.down
+actions+=/run_action_list,name=melee,if=target.within5
+actions+=/auto_shot
+actions+=/hunters_mark,if=settings.hunters_mark&debuff.hunters_mark.down&target.time_to_die>10
+actions+=/call_action_list,name=cds
+actions+=/volley,if=settings.volley_targets>0&active_enemies>=settings.volley_targets&!moving
+actions+=/multishot,if=active_enemies>1&!moving
+actions+=/serpent_sting,if=serpent_wanted&debuff.sting.down&target.time_to_die>8&mana.pct>=10
+actions+=/aimed_shot,if=aimed_shot_wanted&!moving
+actions+=/multishot,if=settings.multishot_st&!moving
+actions+=/arcane_shot,if=mana.pct>=settings.arcane_mana_pct|moving
+
+actions.cds+=/rapid_fire,if=target.time_to_die>12|target.is_boss
+actions.cds+=/berserking,if=target.time_to_die>8|target.is_boss
+actions.cds+=/blood_fury,if=target.time_to_die>12|target.is_boss
+actions.cds+=/use_items
+
+## Pet: keep it alive and present (no Feign Death or Intimidation here; those are your call).
+actions.pet+=/call_pet,if=pet_missing
+actions.pet+=/revive_pet,if=pet_needs_revive&settings.revive_in_combat
+actions.pet+=/mend_pet,if=pet.alive&pet.health_pct<settings.mend_pet_health&buff.mend_pet.down
+
+## Melee range (5 yd): Mongoose Bite after a dodge, Counterattack after a parry, Raptor Strike on the next swing, Wing Clip to step out.
+actions.melee+=/mongoose_bite
+actions.melee+=/counterattack
+actions.melee+=/raptor_strike
+actions.melee+=/wing_clip,if=settings.wing_clip&debuff.wing_clip.down&!target.is_boss

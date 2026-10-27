@@ -2,7 +2,8 @@
 """Draw the Herakili crest (a heater shield with an 'H', Classic gold on dark) as WoW textures.
 
 Usage: python3 tools/make_logo.py [preview.png]
-Writes Textures/HERAKILI.tga (256x256, front page and minimap) and, with an argument, a PNG preview.
+Writes Textures/HERAKILI.tga (256x256, front page and minimap), tools/logo.png (README) and, with an argument, a PNG
+preview on dark and light backgrounds.
 Everything is drawn from geometry (no fonts or third-party art), so the crest is ours to license with the addon.
 """
 import sys
@@ -113,6 +114,7 @@ def draw():
 if __name__ == "__main__":
     logo = draw()
     logo.save("Textures/HERAKILI.tga")
+    logo.save("tools/logo.png")                                   # for the README
     if len(sys.argv) > 1:
         bg = Image.new("RGBA", (OUT * 2 + 48, OUT + 32), (0, 0, 0, 0))
         dark = Image.new("RGBA", (OUT + 16, OUT + 32), (30, 30, 30, 255))

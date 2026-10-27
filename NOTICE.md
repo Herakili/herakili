@@ -18,6 +18,8 @@ Starting from Hekili's `wrath` branch (commit 2ef2a444), modified from October 2
   tracking, definition precedence).
 - Renamed the addon to Herakili (folder, title, saved variables `HerakiliDB`, slash commands `/herakili` and `/hera`,
   options and minimap names).  The internal Lua identifier `Hekili` is unchanged.
+- Replaced Hekili's artwork with the Herakili crest (drawn by `tools/make_logo.py`), rewrote the options front page,
+  and changed the warrior tank priority's threat rules.
 - Removed the legacy import format (it relied on LibCompress) and the bundled libraries listed below as not included.
 - Added offline development tools (`tools/`), not part of the installed addon.
 

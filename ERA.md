@@ -8,7 +8,7 @@ The shipped addon is the `Herakili` folder built by `tools/build.sh` (Era TOC `H
 `HerakiliDB`, commands `/herakili` and `/hera`).  The source keeps Hekili's internal Lua identifier `Hekili` and the
 untouched Wrath files, which the build leaves out.
 
-## Status: beta (`era-beta-2`)
+## Status: beta (`era-beta-3`)
 
 Every priority is auto-selected by talent tree.  Healing specs aren't covered (Hekili's engine does damage and
 tanking); healer-specced characters get the class's damage priority.
@@ -68,6 +68,7 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 | `python3 tools/check_globals.py` | Globals the addon reads that the Era client doesn't provide (with source lines). |
 | `python3 tools/check_events.py` | Registered events the Era client doesn't have. |
 | `python3 tools/check_shared.py <HARNESS_DUMP file>` | Shared (all-class) abilities/auras/items that don't exist on Era. |
+| `python3 tools/make_logo.py [preview.png]` | Draw the Herakili crest (`Textures/HERAKILI.tga`, `tools/logo.png`) from geometry. |
 | `python3 tools/era_talents.py <classID>` / `tools/spell_lookup.py "<name>"` | Era talent table as RegisterTalents lines / every Era spell with a name, its rank, level and skill line. |
 
 ## Warrior notes
@@ -78,6 +79,11 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 - Enemy counting for Cleave / Whirlwind: enemy nameplates within 8 yards (enable them with V; they are off by default on
   Era), plus damage-based detection from your abilities' hits (white swings don't count).
 - Racials: Blood Fury and Berserking are used with the cooldowns when your race has them.
+- Tank threat follows the Era threat values measured on the Classic server (magey/classic-warrior "Threat Mechanics";
+  Defensive Stance × Defiance = 1.495): Revenge is the best threat per rage, Bloodthirst the best per global cooldown,
+  Heroic Strike (rank 9: damage + 173) is the single-target rage dump and never starves a ready Bloodthirst, Cleave
+  (+100 per target) and Battle Shout (threat split across all enemies) are the multi-target dumps, and Sunder Armor
+  is filler once at 5 stacks.  Bloodthirst vs. Revenge order is still to be checked against top Era logs.
 - Settings (Herakili options → Warrior): Heroic Strike / Cleave rage thresholds, Execute-phase queueing, Hamstring weaving
   for Windfury, Sunder / Demoralizing Shout upkeep, Rend while leveling, Bloodthirst/Mortal Strike over Execute above an
   attack-power threshold, and the Fury Overpower stance dance.

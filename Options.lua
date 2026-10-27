@@ -9298,7 +9298,7 @@ end
 
 do
     local Options = {
-        name = "Herakili " .. Hekili.Version,
+        name = ns.Accent( "Herakili" ) .. " " .. Hekili.Version,
         type = "group",
         handler = Hekili,
         get = 'GetOption',
@@ -9336,55 +9336,98 @@ do
                     },
 
                     welcome = {
-                        type = 'description',
-                        name = "",
-                        fontSize = "medium",
-                        image = "Interface\\AddOns\\Herakili\\Textures\\Taco256",
-                        imageWidth = 192,
-                        imageHeight = 192,
+                        type = "description",
+                        name = function ()
+                            return ns.Accent( "Herakili" ) .. "  |cFFFFFFFF" .. Hekili.Version .. "|r\n\n" ..
+                                "Rotation and priority helper for World of Warcraft: Classic Era, Hardcore and Anniversary realms.\n\n" ..
+                                "It shows the next abilities to press for your class, using a priority picked from your talents."
+                        end,
+                        fontSize = "large",
+                        image = ns.Logo,
+                        imageWidth = 112,
+                        imageHeight = 112,
                         order = 5,
                         width = "full"
                     },
 
-                    supporters = {
-                        type = "description",
-                        name = function ()
-                            return "|cFF00CCFFHerakili is built on Hekili.  Thank you to Hekili's supporters:|r\n\n" .. ns.Patrons .. ".\n\n" ..
-                                "Please see the |cFFFFD100Issue Reporting|r tab for information about reporting bugs.\n\n"
-                        end,
-                        fontSize = "medium",
+                    quickStartHeader = {
+                        type = "header",
+                        name = "Quick Start",
                         order = 6,
                         width = "full"
                     },
 
-                    curse = {
-                        type = "input",
-                        name = "Based on Hekili (CurseForge)",
+                    quickStart = {
+                        type = "description",
+                        name = function ()
+                            return "|cFFFFD100Move the displays|r  While this window is open, drag the displays where you want them (or type |cFFFFD100/hera move|r).\n\n" ..
+                                "|cFFFFD100Priorities|r  Picked automatically from your talents; you can choose another one in your specialization's section (e.g. |cFFFFD100Fury|r), on its |cFFFFD100Core|r tab.\n\n" ..
+                                "|cFFFFD100Cooldowns, defensives, interrupts|r  Bind keys for these toggles under |cFFFFD100Toggles|r.\n\n" ..
+                                "|cFFFFD100Something looks wrong?|r  Take a |cFFFFD100Snapshot|r when it happens (see |cFFFFD100Snapshots|r) and send it with your report.\n\n" ..
+                                "Type |cFFFFD100/herakili|r or |cFFFFD100/hera|r to open this window."
+                        end,
+                        fontSize = "medium",
+                        order = 7,
+                        width = "full"
+                    },
+
+                    classHeader = {
+                        type = "header",
+                        name = function ()
+                            local name = UnitClass( "player" )
+                            return name and ( "Your Class: " .. name ) or "Your Class"
+                        end,
+                        order = 8,
+                        width = "full"
+                    },
+
+                    classStatus = {
+                        type = "description",
+                        name = function ()
+                            local _, token = UnitClass( "player" )
+                            return ns.EraClassNotes[ token ] or "This class doesn't have a Classic Era priority yet."
+                        end,
+                        fontSize = "medium",
+                        order = 9,
+                        width = "full"
+                    },
+
+                    linksHeader = {
+                        type = "header",
+                        name = "Project",
                         order = 10,
-                        get = function () return "https://www.curseforge.com/wow/addons/hekili" end,
-                        set = function () end,
-                        width = "full",
-                        -- (selectable text box; the SFX URL widget is not bundled)
+                        width = "full"
                     },
 
-                    github = {
+                    project = {
                         type = "input",
-                        name = "Hekili on GitHub",
+                        name = "Herakili Project Page",
                         order = 11,
-                        get = function () return "https://github.com/Hekili/hekili/" end,
+                        get = function () return ns.ProjectURL or "Not published yet." end,
                         set = function () end,
                         width = "full",
                         -- (selectable text box; the SFX URL widget is not bundled)
                     },
 
-                    simulationcraft = {
+                    issueLink = {
                         type = "input",
-                        name = "SimC",
+                        name = "Report a Problem",
                         order = 12,
-                        get = function () return "https://github.com/simulationcraft/simc/wiki" end,
+                        get = function () return ns.ProjectURL and ( ns.ProjectURL .. "/issues" ) or "Not published yet." end,
                         set = function () end,
                         width = "full",
-                        -- (selectable text box; the SFX URL widget is not bundled)
+                    },
+
+                    credits = {
+                        type = "description",
+                        name = function ()
+                            return "\n|cFF999999Herakili is built on Hekili by Hekili and contributors (https://github.com/Hekili/hekili) and is licensed " ..
+                                "under the GNU GPL v3.  It isn't made or supported by Hekili's authors, so please send Herakili problems to the project " ..
+                                "above.  Thank you to Hekili's supporters: " .. ns.Patrons .. ".|r"
+                        end,
+                        fontSize = "small",
+                        order = 20,
+                        width = "full"
                     }
                 }
             },
@@ -9533,11 +9576,12 @@ do
                         set = function () end,
                     },
                     link = {
-                        type = "description",
-                        name = "Herakili project page: not published yet.",
+                        type = "input",
+                        name = "Report Problems Here",
                         order = 30,
                         width = "full",
-                        fontSize = "medium",
+                        get = function () return ns.ProjectURL and ( ns.ProjectURL .. "/issues" ) or "Not published yet." end,
+                        set = function () end,
                     },
                 }
             },

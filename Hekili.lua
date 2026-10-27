@@ -19,6 +19,29 @@ end
 
 Hekili.AllowSimCImports = true
 
+-- Herakili branding: crest texture, accent colour (the crest's gold) and the project page from the TOC (X-Website).
+ns.Logo = "Interface\\AddOns\\" .. addon .. "\\Textures\\HERAKILI"
+ns.AccentColor = "FFF0B848"
+ns.Accent = function( text ) return "|c" .. ns.AccentColor .. text .. "|r" end
+ns.ProjectURL = GetAddOnMetadata( addon, "X-Website" )
+
+-- Front-page summary of what each class's Classic Era priorities cover (keep in step with ERA.md).
+ns.EraClassNotes = {
+    WARRIOR = "Fury, Arms and Protection, picked by talents.  Tanking: turn on |cFFFFD100Tank Mode|r (Warrior settings) and Defensive " ..
+        "Stance uses the tank priority, built for the dual-wield Fury/Protection style most Era tanks play.  Raid Sunder Armor opener included.",
+    PALADIN = "Retribution and Protection.  Seal choice, Judgement debuff upkeep, and Consecration by targets and mana.  Holy-specced " ..
+        "paladins get the Retribution priority (healing isn't covered).",
+    HUNTER = "Marksmanship, Beast Mastery and Survival.  Auto Shot timing, Aimed Shot modes, melee fallback and pet care.",
+    ROGUE = "Combat, Assassination and Subtlety.  Energy ticks, Slice and Dice, stealth openers and dagger detection.",
+    PRIEST = "Shadow.  Mind Flay clipping, Shadow Weaving and wand fallback.  Holy and Discipline priests get the Shadow priority " ..
+        "(healing isn't covered).",
+    SHAMAN = "Elemental and Enhancement.  Totems and weapon imbues.  Restoration shamans get the Elemental priority (healing isn't covered).",
+    MAGE = "Frost, Fire and Arcane.  Scorch stacks, AoE by pack position, mana gems, Evocation and wand.",
+    WARLOCK = "Affliction, Demonology and Destruction.  Curse choice by group type, Life Tap and Dark Pact, and demon handling.",
+    DRUID = "Feral (Cat and Bear, by form) and Balance.  Energy ticks, optional powershifting and Maul queueing.  Restoration druids " ..
+        "get the Balance priority (healing isn't covered).",
+}
+
 Hekili.IsRetail = function()
     return Hekili.Flavor == "Retail"
 end

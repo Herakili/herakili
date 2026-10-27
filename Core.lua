@@ -82,7 +82,7 @@ function ns.SetupMinimapButton( self )
         ns.UI.Minimap = ns.UI.Minimap or LDB:NewDataObject( "Herakili", {
             type = "data source",
             text = "Herakili",
-            icon = "Interface\\ICONS\\spell_nature_bloodlust",
+            icon = ns.Logo,
             OnClick = function( f, button )
                 if button == "RightButton" then ns.StartConfiguration()
                 else

@@ -6,6 +6,8 @@
 ## Notes: Rotation and priority helper for Classic Era, a port of Hekili.  Licensed under the GNU GPL v3.
 ## X-License: GPL-3.0
 ## X-Credits: Based on Hekili (https://github.com/Hekili/hekili) by Hekili and contributors
+## X-Website: https://github.com/herakili/herakili
+## IconTexture: Interface\AddOns\Herakili\Textures\HERAKILI
 ## SavedVariables: HerakiliDB
 ## OptionalDeps: AddOnSkins, ButtonForge, ConsolePort, ElvUI, LibDualSpec-1.0, Masque, WeakAuras
 

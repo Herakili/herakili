@@ -122,6 +122,11 @@ return {
                 W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
                 CLEU( "SWING_MISSED", W.target.guid, GUIDS.player, "PARRY", false, 0 )
             end },
+            { "Tank: Defensive, 35 rage, just parried (Revenge)", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 35, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                CLEU( "SWING_MISSED", W.target.guid, GUIDS.player, "PARRY", false, 0 )
+            end },
             { "Tank: Defensive, 30 rage, fresh target (no Sunder/Demo)", function()
                 W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 30, Target(), { Shout() }, 2, true
             end },

@@ -85,6 +85,11 @@ actions.tank+=/shield_block,use_off_gcd=1,if=settings.tank_shield_block&aggro&ra
 actions.tank+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&(rage.current>=settings.tank_hs_rage&(!talent.bloodthirst.enabled|cooldown.bloodthirst.remains>gcd.max|rage.current>=action.heroic_strike.cost+action.bloodthirst.cost)|talent.bloodthirst.enabled&cooldown.bloodthirst.remains>gcd.max&rage.current>=action.heroic_strike.cost+action.sunder_armor.cost)
 actions.tank+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.tank_cleave_rage
 actions.tank+=/battle_shout,if=buff.battle_shout.remains<3
+## Bloodthirst or Revenge, when both are ready.  Revenge is the best threat per rage (5 rage), Bloodthirst the best per
+## global cooldown (about 2.3x Revenge): with plenty of rage the global cooldown is the limit, so Bloodthirst goes first and
+## Revenge follows inside its 5 s window; short on rage, Revenge goes first.  This is what the tanks in the fastest Era
+## kills do (tools/wcl_tanks.py).
+actions.tank+=/bloodthirst,if=rage.current>=settings.tank_bt_first_rage&buff.revenge_usable.remains>gcd.max
 actions.tank+=/revenge
 actions.tank+=/shield_slam
 actions.tank+=/bloodthirst
@@ -93,4 +98,6 @@ actions.tank+=/mortal_strike
 actions.tank+=/battle_shout,if=active_enemies>=3&rage.current>=settings.tank_cleave_rage
 actions.tank+=/sunder_armor,if=debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<5
 actions.tank+=/demoralizing_shout,if=settings.tank_demoshout&debuff.demoralizing_shout.remains<3
-actions.tank+=/sunder_armor
+## Filler Sunder Armor (about the same threat per rage as Heroic Strike, but it takes a global cooldown): only while it
+## can't starve Bloodthirst.
+actions.tank+=/sunder_armor,if=!talent.bloodthirst.enabled|rage.current>=action.bloodthirst.cost+action.sunder_armor.cost

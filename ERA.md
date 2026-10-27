@@ -68,6 +68,7 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
 | `python3 tools/check_globals.py` | Globals the addon reads that the Era client doesn't provide (with source lines). |
 | `python3 tools/check_events.py` | Registered events the Era client doesn't have. |
 | `python3 tools/check_shared.py <HARNESS_DUMP file>` | Shared (all-class) abilities/auras/items that don't exist on Era. |
+| `python3 tools/wcl_tanks.py [--per-boss N] [encounterID ...]` | Measure the warrior tanks in the fastest Era kills on Warcraft Logs (setups, ability use, threat by ability, rage model, Bloodthirst/Revenge choices, openers).  Needs a Warcraft Logs API client in `~/.config/wcl/credentials` (`tools/wcl.py`); downloads are cached in `~/.cache/wcl/`. |
 | `python3 tools/make_logo.py [preview.png]` | Draw the Herakili crest (`Textures/HERAKILI.tga`, `tools/logo.png`) from geometry. |
 | `python3 tools/era_talents.py <classID>` / `tools/spell_lookup.py "<name>"` | Era talent table as RegisterTalents lines / every Era spell with a name, its rank, level and skill line. |
 
@@ -83,7 +84,13 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
   Defensive Stance × Defiance = 1.495): Revenge is the best threat per rage, Bloodthirst the best per global cooldown,
   Heroic Strike (rank 9: damage + 173) is the single-target rage dump and never starves a ready Bloodthirst, Cleave
   (+100 per target) and Battle Shout (threat split across all enemies) are the multi-target dumps, and Sunder Armor
-  is filler once at 5 stacks.  Bloodthirst vs. Revenge order is still to be checked against top Era logs.
+  is filler once at 5 stacks (and never at the cost of Bloodthirst's rage).
+- Bloodthirst vs. Revenge depends on rage (setting "Tank: Bloodthirst Before Revenge Above", default 50): with plenty of
+  rage the global cooldown is the limit and Bloodthirst (about 2.3x Revenge's threat per GCD) goes first; short on rage,
+  Revenge (about 2.5x Bloodthirst's threat per rage) does.  `tools/wcl_tanks.py` confirmed this on the fastest Era kills
+  (39 tanks, 40 kills, October 2026): with Bloodthirst and Revenge both ready, they pressed Revenge 37:15 under 30 rage
+  and Bloodthirst 21:1 at 60+ (rage rebuilt from damage events with the 1.12 formulas).  All of them dual-wield, Heroic
+  Strike is about half their threat (on nearly every swing), and they rarely Sunder (the raid's warriors keep it up).
 - Settings (Herakili options → Warrior): Heroic Strike / Cleave rage thresholds, Execute-phase queueing, Hamstring weaving
   for Windfury, Sunder / Demoralizing Shout upkeep, Rend while leveling, Bloodthirst/Mortal Strike over Execute above an
   attack-power threshold, and the Fury Overpower stance dance.

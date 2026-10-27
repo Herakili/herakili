@@ -8,7 +8,7 @@ The shipped addon is the `Herakili` folder built by `tools/build.sh` (Era TOC `H
 `HerakiliDB`, commands `/herakili` and `/hera`).  The source keeps Hekili's internal Lua identifier `Hekili` and the
 untouched Wrath files, which the build leaves out.
 
-## Status: beta (`era-beta-4`)
+## Status: beta (`era-beta-5`)
 
 Every priority is auto-selected by talent tree.  Healing specs aren't covered (Hekili's engine does damage and
 tanking); healer-specced characters get the class's damage priority.
@@ -85,6 +85,14 @@ All tools run from the repository root.  First: `tools/fetch-libs.sh` (libraries
   Heroic Strike (rank 9: damage + 173) is the single-target rage dump and never starves a ready Bloodthirst, Cleave
   (+100 per target) and Battle Shout (threat split across all enemies) are the multi-target dumps, and Sunder Armor
   is filler once at 5 stacks (and never at the cost of Bloodthirst's rage).
+- Fury Overpower stance dance is on by default: only when Bloodthirst and Whirlwind are on cooldown and the swap loses no
+  rage beyond Tactical Mastery, so each Overpower is nearly free (about half of the top Era Fury warriors dance on
+  Patchwerk, none on Ragnaros).  Hamstring weaving defaults to "With Windfury Totem" (the Windfury Totem weapon enchant,
+  IDs 1783/563/564 from the client's SpellEffect table), as most top Horde Fury warriors weave it for extra Windfury procs.
+- The Sunder Armor opener (default: in raids) applies to the Fury and Arms damage priorities; tanks open with Bloodthirst,
+  which is about six times Sunder's threat for that first global cooldown.
+- Changed setting defaults reach existing profiles through `spec.settingMigrations` (Era/Classes.lua `ns.MigrateSettings`):
+  Hekili saves every setting in the profile, so each migration moves a setting still at its old default once.
 - Bloodthirst vs. Revenge depends on rage (setting "Tank: Bloodthirst Before Revenge Above", default 50): with plenty of
   rage the global cooldown is the limit and Bloodthirst (about 2.3x Revenge's threat per GCD) goes first; short on rage,
   Revenge (about 2.5x Bloodthirst's threat per rage) does.  `tools/wcl_tanks.py` confirmed this on the fastest Era kills

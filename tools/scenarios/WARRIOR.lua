@@ -112,6 +112,19 @@ return {
                 CLEU( "SWING_MISSED", GUIDS.player, W.target.guid, "DODGE", false, 0 )
             end },
 
+            -- Hamstring weaving (default "With Windfury Totem"): Bloodthirst and Whirlwind on cooldown, spare rage.
+            { "Berserker, 60 rage, BT/WW on cd, Windfury Totem", function()
+                W.inCombat, W.rage, W.target, W.buffs = true, 60, Target(), { Shout() }
+                for _, r in ipairs( BLOODTHIRST ) do W.cooldowns[ r ] = { start = W.time, duration = 6 } end
+                W.cooldowns[ 1680 ] = { start = W.time, duration = 10 }
+                W.enchants = { mh = { id = 564, remaining = 8 } }
+            end },
+            { "Berserker, 60 rage, BT/WW on cd, no Windfury", function()
+                W.inCombat, W.rage, W.target, W.buffs = true, 60, Target(), { Shout() }
+                for _, r in ipairs( BLOODTHIRST ) do W.cooldowns[ r ] = { start = W.time, duration = 6 } end
+                W.cooldowns[ 1680 ] = { start = W.time, duration = 10 }
+            end },
+
             -- Tanking.  Tank Mode "auto" (default): Defensive Stance means tanking.
             { "Tank: Defensive, 35 rage, aggro", function()
                 W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 35, Target(), { Shout() }, 2, true

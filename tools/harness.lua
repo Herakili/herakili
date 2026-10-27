@@ -960,6 +960,14 @@ do
     print( "Built-in priorities in the profile: " .. ( #names > 0 and table.concat( names, ", " ) or "none" ) )
     local specDB = Hekili.DB and Hekili.DB.profile.specs[ classID ]
     print( "Active priority: " .. tostring( specDB and specDB.package ) )
+    -- HARNESS_SETTINGS=name,name: print those class settings after login (e.g. to check setting migrations).
+    local want = os.getenv( "HARNESS_SETTINGS" )
+    if want and specDB then
+        for name in want:gmatch( "[^,%s]+" ) do
+            print( "Setting " .. name .. " = " .. tostring( specDB.settings and specDB.settings[ name ] ) )
+        end
+        print( "Settings migrations applied: " .. tostring( specDB.settingsMigrated ) )
+    end
 end
 
 do

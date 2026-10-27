@@ -25,6 +25,22 @@ end
 ns.GetTabPoints = GetTabPoints
 
 
+-- Changed setting defaults.  Hekili saves every setting in the profile (defaults included), so a new default would never
+-- reach existing installs; a class module lists { name, from, to } in spec.settingMigrations (append-only), and each one is
+-- applied once per profile to settings still at the old default.  Settings the player changed are left alone.
+function ns.MigrateSettings( spec )
+    local s = class.specs[ spec ]
+    local p = Hekili.DB and Hekili.DB.profile.specs[ spec ]
+    if not ( s and s.settingMigrations and p ) then return end
+    p.settings = p.settings or {}
+    local done = p.settingsMigrated or 0
+    for i = done + 1, #s.settingMigrations do
+        local m = s.settingMigrations[ i ]
+        if p.settings[ m.name ] == m.from then p.settings[ m.name ] = m.to end
+    end
+    p.settingsMigrated = #s.settingMigrations
+end
+
 function ns.updateTalents()
     for _, tal in pairs( state.talent ) do
         tal.enabled = false
@@ -60,6 +76,8 @@ function ns.updateTalents()
     end
 
     local spec = state.spec.id or select( 3, UnitClass( "player" ) )
+
+    ns.MigrateSettings( spec )
 
     -- Classic Era has no "global cooldown" spell (61304); track the GCD through the class's
     -- cooldown-free spell named by its module (spec:RegisterOptions{ gcd = ... }).

@@ -1,5 +1,5 @@
 ## Interface: 11509
-## Version: era-beta-4
+## Version: era-beta-5
 ## Title: Herakili
 ## Author: Herakili contributors (based on Hekili by Hekili)
 ## X-Flavor: Era

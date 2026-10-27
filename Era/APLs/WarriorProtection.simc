@@ -25,16 +25,20 @@ actions.tank+=/defensive_stance,use_off_gcd=1
 actions.tank+=/taunt,if=settings.tank_taunt&time>0&!aggro
 actions.tank+=/last_stand,if=settings.tank_last_stand_pct>0&health.pct<settings.tank_last_stand_pct
 actions.tank+=/shield_wall,if=settings.tank_last_stand_pct>0&health.pct<settings.tank_last_stand_pct*0.5
-actions.tank+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20&time>0
+actions.tank+=/bloodrage,use_off_gcd=1,if=rage.deficit>=20
 actions.tank+=/shield_block,use_off_gcd=1,if=settings.tank_shield_block&aggro&rage.current>=25&!buff.shield_block.up
-actions.tank+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&rage.current>=settings.tank_hs_rage
+## Heroic Strike is the single-target rage dump: above the threshold (keeping enough for a ready Bloodthirst), or whenever
+## Bloodthirst is on cooldown and a Sunder Armor is still affordable afterwards (about as much threat per rage as
+## Bloodthirst, and no global cooldown).
+actions.tank+=/heroic_strike,use_off_gcd=1,if=active_enemies=1&(rage.current>=settings.tank_hs_rage&(!talent.bloodthirst.enabled|cooldown.bloodthirst.remains>gcd.max|rage.current>=action.heroic_strike.cost+action.bloodthirst.cost)|talent.bloodthirst.enabled&cooldown.bloodthirst.remains>gcd.max&rage.current>=action.heroic_strike.cost+action.sunder_armor.cost)
 actions.tank+=/cleave,use_off_gcd=1,if=active_enemies>1&rage.current>=settings.tank_cleave_rage
 actions.tank+=/battle_shout,if=buff.battle_shout.remains<3
 actions.tank+=/revenge
 actions.tank+=/shield_slam
 actions.tank+=/bloodthirst
 actions.tank+=/mortal_strike
+## Three or more enemies: Battle Shout's threat is split across every enemy in combat, so it's the AoE rage dump.
+actions.tank+=/battle_shout,if=active_enemies>=3&rage.current>=settings.tank_cleave_rage
 actions.tank+=/sunder_armor,if=debuff.sunder_armor.stack<5|debuff.sunder_armor.remains<5
 actions.tank+=/demoralizing_shout,if=settings.tank_demoshout&debuff.demoralizing_shout.remains<3
-actions.tank+=/concussion_blow
 actions.tank+=/sunder_armor

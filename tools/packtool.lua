@@ -206,8 +206,8 @@ elseif cmd == "encode" or cmd == "embed" then
         date = tonumber( now ),
         payload = {
             spec = tonumber( specID ),
-            source = "https://github.com/Hekili/hekili/",
-            author = author or "hekili-era",
+            source = "https://github.com/herakili/herakili",
+            author = author or "Herakili",
             desc = desc or "",
             profile = profile,
             date = tonumber( now ),

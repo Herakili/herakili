@@ -41,6 +41,8 @@ return {
     scenarios = function( H )
         local W, Target, Aura, Fire, CLEU, GUIDS = H.W, H.Target, H.Aura, H.Fire, H.CLEU, H.GUIDS
         local function Shout() return Aura( 25289, 100, 0, 120 ) end
+        -- Every Bloodthirst ID in the client tables (the harness may resolve the name to an unranked copy).
+        local BLOODTHIRST = { 23880, 23881, 23885, 23886, 23887, 23888, 23889, 23890, 23891, 23892, 23893, 23894 }
 
         return {
             { "Out of combat, target in range, no Battle Shout", function()
@@ -137,6 +139,18 @@ return {
                 W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 40, Target(), { Shout() }, 2, true
                 W.health = W.healthMax * 0.15
                 W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+            end },
+            -- Threat: Heroic Strike below the threshold while Bloodthirst is on cooldown (Bloodthirst builds); Battle Shout as the AoE dump.
+            { "Tank: Defensive, 30 rage, Bloodthirst on cooldown", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 30, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                for _, r in ipairs( BLOODTHIRST ) do W.cooldowns[ r ] = { start = W.time, duration = 6 } end
+            end },
+            { "Tank: Defensive, 45 rage, 4 enemies, Shout up", function()
+                W.inCombat, W.rage, W.target, W.buffs, W.stance, W.aggro = true, 45, Target(), { Shout() }, 2, true
+                W.debuffs = { Aura( 11597, 25, 5, 30 ), Aura( 11556, 20, 0, 30 ) }
+                for _, r in ipairs( BLOODTHIRST ) do W.cooldowns[ r ] = { start = W.time, duration = 6 } end
+                H.Plates( 3 )
             end },
             { "Tank Mode Always: pull, Battle Stance, 20 yd", function()
                 W.rage, W.target, W.buffs, W.stance = 0, Target(), { Shout() }, 1

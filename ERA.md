@@ -8,7 +8,7 @@ The shipped addon is the `Herakili` folder built by `tools/build.sh` (Era TOC `H
 `HerakiliDB`, commands `/herakili` and `/hera`).  The source keeps Hekili's internal Lua identifier `Hekili` and the
 untouched Wrath files, which the build leaves out.
 
-## Status: beta (`era-beta-3`)
+## Status: beta (`era-beta-4`)
 
 Every priority is auto-selected by talent tree.  Healing specs aren't covered (Hekili's engine does damage and
 tanking); healer-specced characters get the class's damage priority.
